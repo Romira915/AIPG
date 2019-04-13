@@ -2,89 +2,188 @@
 #include <stdlib.h>
 #include "Info.h"
 
-#define U 10
-#define D 11
-#define L 12
-#define R 13
-#define NO 14
-#define ROAD 0
-#define FOOD 1
-#define WALL 2
+#include <queue>
+using namespace std;
 
-bool Enemy_pos(int dir, POSITION p, POSITION e) {
-	switch (dir)
-	{
-	case U: {
-		if (p.y - 1 == e.y)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	} break;
-	case D: {
-		if (p.y + 1 == e.y)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	} break;
-	case L: {
-		if (p.x - 1 == e.x)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	} break;
-	case R: {
-		if (p.x + 1 == e.x)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	} break;
-	default: exit(-1);
-		break;
-	}
+#define ROAD 5
+#define FOOD 6
+#define WALL 7
+
+class Direction
+{
+public:
+	Direction();
+	~Direction();
+
+	void Init(MOVEMENT);
+	void All_true();
+	void All_false();
+
+	bool up, left, right, down;
+	queue<MOVEMENT> node;
+
+private:
+
+};
+
+Direction::Direction()
+{
+	All_true();
 }
 
-MOVEMENT Food_Search(MAPDATA map, POSITION p) {
-	if (map[p.y - 1][p.x] == FOOD)
+Direction::~Direction()
+{
+}
+
+void Direction::Init(MOVEMENT dir_off = STAY)
+{
+	All_true();
+	if (!dir_off == STAY)
+	{
+		switch (dir_off)
+		{
+		case UP: {up = false; }break;
+		case LEFT: {left = false; }break;
+		case RIGHT: {right = false; }break;
+		case DOWN: {down = false; }break;
+		default:
+			break;
+		}
+	}
+	MOVEMENT rn;
+	while (up || left || right || down)
+	{
+		rn = MOVEMENT(rand() % 4 + 1);
+		switch (rn)
+		{
+		case UP: {
+			if (up)
+			{
+				node.push(UP);
+				up = false;
+			}
+		}break;
+		case LEFT: {
+			if (left)
+			{
+				node.push(LEFT);
+				left = false;
+			}
+		}break;
+		case RIGHT: {
+			if (right)
+			{
+				node.push(RIGHT);
+				right = false;
+			}
+		}break;
+		case DOWN: {
+			if (down)
+			{
+				node.push(DOWN);
+				down = false;
+			}
+		}break;
+		default:
+			break;
+		}
+	}
+
+	All_true();
+}
+
+void Direction::All_true()
+{
+	up = true;
+	left = true;
+	right = true;
+	down = true;
+}
+
+void Direction::All_false()
+{
+	up = false;
+	left = false;
+	right = false;
+	down = false;
+}
+
+
+
+MOVEMENT Enemy_pos(POSITION p, POSITION e) {
+	if (p.x == e.x && p.y - 1 == e.y)
 	{
 		return UP;
 	}
-	if (map[p.y + 1][p.x] == FOOD)
+	if (p.x - 1 == e.x && p.y == e.y)
 	{
-		return DOWN;
+		return LEFT;
 	}
-	if (map[p.y][p.x + 1] == FOOD)
+	if (p.x + 1 == e.x && p.y == e.y)
 	{
 		return RIGHT;
 	}
-	if (map[p.y][p.x - 1] == FOOD)
+	if (p.x == e.x && p.y + 1 == e.y)
 	{
-		return LEFT;
+		return DOWN;
 	}
 
 	return STAY;
 }
 
-MOVEMENT Road_Search(MAPDATA map, POSITION p) {
+MOVEMENT Map_Search(int target, Direction dir, MAPDATA map, POSITION p, int range = 1) {
+	while (!dir.node.empty())
+	{
+		MOVEMENT tmp;
+		tmp = dir.node.front();
+		dir.node.pop();
 
+		switch (tmp)
+		{
+		case UP: {
+			if (map[p.y - range][p.x] == target)
+			{
+				return UP;
+			}
+		}break;
+		case LEFT: {
+			if (map[p.y][p.x - range] == target)
+			{
+				return LEFT;
+			}
+		}break;
+		case RIGHT: {
+			if (map[p.y][p.x + range] == target)
+			{
+				return RIGHT;
+			}
+		}break;
+		case DOWN: {
+			if (map[p.y + range][p.x] == target)
+			{
+				return DOWN;
+			}
+		}break;
+		default:
+			break;
+		}
+	}
+
+	return STAY;
 }
 
 MOVEMENT playerAI(MAPDATA map, POSITION p, POSITION e, int turn)
 {
-	return LEFT;
+	Direction dir;
+
+	dir.Init(Enemy_pos(p, e));
+
+	if (!Map_Search(FOOD, dir, map, p) == STAY)
+	{
+		return Map_Search(FOOD, dir, map, p);
+	}
+	else
+	{
+		return Map_Search(WALL, dir, map, p);
+	}
 }
