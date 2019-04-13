@@ -145,7 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="janken.cpp" />
-    <ClCompile Include="s00a0000.cpp" />
+    <ClCompile Include="s18a1042.cpp" />
     <ClCompile Include="simpleplayer.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>

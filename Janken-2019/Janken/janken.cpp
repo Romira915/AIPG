@@ -15,7 +15,7 @@ int MAXKAISU = 75;
 int NUMMATCH = 5;
 
 // TODO プレイヤーを追加するには以下のs00a0000と同じよう３箇所追加すること．
-extern Te s00a0000(int i, Te myhistory[], Te rivalhistory[]);
+extern Te s18a1042(int i, Te myhistory[], Te rivalhistory[]);
 extern Te yamazawa(int i, Te myhistory[], Te rivalhistory[]);
 extern Te simpleWin4Pre(int i, Te myhistory[], Te rivalhistory[]);
 extern Te simpleRand(int i, Te myhistory[], Te rivalhistory[]);
@@ -173,7 +173,7 @@ extern Te s17a2079(int i, Te myhistory[], Te rivalhistory[]);
 extern Te s17a2301(int i, Te myhistory[], Te rivalhistory[]);
 
 static Te(*player[])(int i, Te myhistory[], Te rivalhistory[]) = {
-	s00a0000,
+	s18a1042,
 	yamazawa,
 	simpleWin4Pre,
 	//	simpleRand,
@@ -332,7 +332,7 @@ static Te(*player[])(int i, Te myhistory[], Te rivalhistory[]) = {
 };
 
 static char *playername[] = {
-	"s00a0000",
+	"s18a1042",
 	"yamazawa",
 	"Win4Pre",
 	//	"Rand",
