@@ -1,0 +1,10 @@
+1521107_00001/
+1521107_00002/
+1521107_00003/
+1521107_00004/
+.vs/
+*.exe
+Debug/
+Release/
+/BreadthFirstSearch/BreadthFirstSearch/dist/
+/BreadthFirstSearch/BreadthFirstSearch/build/
