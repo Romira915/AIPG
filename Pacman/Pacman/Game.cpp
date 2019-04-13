@@ -408,7 +408,7 @@ BOOL tick(ENTITYS entity, MAPDATA mapData, int *foods, int *turn)
 	}
 
 	updateFoodsCount(foods);
-	Sleep(200);
+	Sleep(25);
 
 	return flag;
 }

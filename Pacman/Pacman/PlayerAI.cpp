@@ -3,11 +3,12 @@
 #include "Info.h"
 
 #include <queue>
+#include <cmath>
 using namespace std;
 
-#define ROAD 5
-#define FOOD 6
-#define WALL 7
+#define ROAD 0
+#define FOOD 1
+#define WALL 2
 
 class Direction
 {
@@ -38,7 +39,7 @@ Direction::~Direction()
 void Direction::Init(MOVEMENT dir_off = STAY)
 {
 	All_true();
-	if (!dir_off == STAY)
+	if (dir_off != STAY)
 	{
 		switch (dir_off)
 		{
@@ -84,7 +85,7 @@ void Direction::Init(MOVEMENT dir_off = STAY)
 				down = false;
 			}
 		}break;
-		default:
+		default:printf("test");
 			break;
 		}
 	}
@@ -129,6 +130,10 @@ MOVEMENT Enemy_pos(POSITION p, POSITION e) {
 	}
 
 	return STAY;
+}
+
+int Enemy_Distance(POSITION p, POSITION e, int dist = 1) {
+	return 0;
 }
 
 MOVEMENT Map_Search(int target, Direction dir, MAPDATA map, POSITION p, int range = 1) {
@@ -177,13 +182,19 @@ MOVEMENT playerAI(MAPDATA map, POSITION p, POSITION e, int turn)
 	Direction dir;
 
 	dir.Init(Enemy_pos(p, e));
-
-	if (!Map_Search(FOOD, dir, map, p) == STAY)
+	if (Enemy_pos(p, e) == STAY)
 	{
-		return Map_Search(FOOD, dir, map, p);
+		return STAY;
 	}
 	else
 	{
-		return Map_Search(WALL, dir, map, p);
+		if (Map_Search(FOOD, dir, map, p) != STAY)
+		{
+			return Map_Search(FOOD, dir, map, p);
+		}
+		else
+		{
+			return Map_Search(ROAD, dir, map, p);
+		}
 	}
 }
