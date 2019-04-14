@@ -5,21 +5,28 @@
 
 #include <cmath>
 
-double softmax(Te target, const double* te_prob) {
-	double te_denial[3];
+
+double* softmax(const double* x, int i) {
+	double* y = new double[i];
 	double sum = 0, max = 0;
 
-	for (int i = 0; i < 3; i++)
+	for (int j = 0; j < i; j++)
 	{
-		te_denial[i] = 100 - te_prob[i];
-		sum += te_denial[i];
-		if (te_denial[i] >= max)
+		if (x[j] >= max)
 		{
-			max = te_denial[i];
+			max = x[j];
 		}
 	}
+	for (int j = 0; j < i; j++)
+	{
+		sum += exp(x[j] - max);
+	}
+	for (int j = 0; j < i; j++)
+	{
+		y[j] = exp(x[j] - max) / exp(sum);
+	}
 
-	return (exp(te_denial[target] - max)) / (exp(sum - max));
+	return y;
 }
 
 double* Te_probability(int count, const Te rivalhistory[]) {
@@ -85,30 +92,5 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return Te((myhistory[i - 1] + 1) % 3);
 	}
 
-	double *te_prob = Te_probability(i, rivalhistory);
-	double next_Te[3];
-	int next_Te_int[3];
-	for (int i = 0; i < 3; i++)
-	{
-		next_Te[i] = softmax(Te(i), te_prob);
-		next_Te_int[i] = int(next_Te[i] * 10000);
-	}
-
-	int te = rand() % 10000 + 1;
-	if (1 <= te && te < next_Te_int[0])
-	{
-		return Gu;
-	}
-	else if (next_Te_int[0] <= te && te < next_Te_int[0] + next_Te_int[1])
-	{
-		return Choki;
-	}
-	else if (next_Te_int[0] + next_Te_int[1] <= te && te < next_Te_int[0] + next_Te_int[1] + next_Te_int[3])
-	{
-		return Pa;
-	}
-	else
-	{
-		return Te(rand() % 3);
-	}
+	return Te(rand() % 3);
 }
