@@ -5,6 +5,49 @@
 
 #include <cmath>
 
+class Combination_Data
+{
+public:
+	Combination_Data();
+	~Combination_Data();
+
+	int*** comb;
+
+private:
+	
+};
+
+Combination_Data::Combination_Data()
+{
+	comb = new int**[75 - 1];
+	for (int i = 0; i < 75-1; i++)
+	{
+		comb[i] = new int*[3];
+	}
+	for (int i = 0; i < 75-1; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			comb[i][j] = new int[3];
+		}
+	}
+}
+
+Combination_Data::~Combination_Data()
+{
+	for (int i = 0; i < 75 - 1; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			delete[] comb[i][j];
+		}
+	}
+	for (int i = 0; i < 75 - 1; i++)
+	{
+		delete[] comb[i];
+	}
+	delete[] comb;
+}
 
 double* softmax(const double* x, int i) {
 	double* y = new double[i];
@@ -72,28 +115,6 @@ bool Win4Pre_or(int count, Te* myhistory, Te* rivalhistory) {
 	}
 
 	return true;
-}
-
-int** Comb2_data(int i, Te rivalhistory[]) {
-	static int comb[(75 - 1) * 5][3][3];
-	/*
-	添字：組み合わせ
-	0	：0 0
-	1	：0 1
-	2	：0 2
-	3	：1 0
-	4	：1 1
-	5	：1 2
-	6	：2 0
-	7	：2 1
-	8	：2 2
-	*/
-	if (i >= 1)
-	{
-		
-	}
-
-	return NULL;
 }
 
 // Te は Gu=0, Choki=1, Pa=2 という値を持つ enum 型
