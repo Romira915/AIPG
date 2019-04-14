@@ -74,8 +74,25 @@ bool Win4Pre_or(int count, Te* myhistory, Te* rivalhistory) {
 	return true;
 }
 
-int* Comb2_data(int i, Te rivalhistory[]) {
-	static int comb[75 * 5 - 1];
+int** Comb2_data(int i, Te rivalhistory[]) {
+	static int comb[(75 - 1) * 5][3][3];
+	/*
+	添字：組み合わせ
+	0	：0 0
+	1	：0 1
+	2	：0 2
+	3	：1 0
+	4	：1 1
+	5	：1 2
+	6	：2 0
+	7	：2 1
+	8	：2 2
+	*/
+	if (i >= 1)
+	{
+		
+	}
+
 	return NULL;
 }
 
