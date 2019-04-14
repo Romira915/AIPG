@@ -74,6 +74,11 @@ bool Win4Pre_or(int count, Te* myhistory, Te* rivalhistory) {
 	return true;
 }
 
+int* Comb2_data(int i, Te rivalhistory[]) {
+	static int comb[75 * 5 - 1];
+	return NULL;
+}
+
 // Te は Gu=0, Choki=1, Pa=2 という値を持つ enum 型
 // 第一引数 i は１試合の中で現在何回目を示す．0からMAXKAISU-1までの値．
 // 第二引数 myhistory は自分の手の履歴を示す．添字は0からMAXKAISU-1まで使えるが，0からi-1までの履歴しか信用出来ない．
