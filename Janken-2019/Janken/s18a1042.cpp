@@ -11,26 +11,40 @@ public:
 	Combination_Data();
 	~Combination_Data();
 
+	int Add_data(int t, const Te rivalhistory[]);
+
 	int*** comb;
 
 private:
-	
+	int count;
 };
 
 Combination_Data::Combination_Data()
 {
 	comb = new int**[75 - 1];
-	for (int i = 0; i < 75-1; i++)
+	for (int i = 0; i < 75 - 1; i++)
 	{
 		comb[i] = new int*[3];
 	}
-	for (int i = 0; i < 75-1; i++)
+	for (int i = 0; i < 75 - 1; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
 			comb[i][j] = new int[3];
 		}
 	}
+
+	for (int i = 0; i < 75 - 1; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			for (int k = 0; k < 3; k++)
+			{
+				comb[i][j][k] = 0;
+			}
+		}
+	}
+	count = 0;
 }
 
 Combination_Data::~Combination_Data()
@@ -48,6 +62,18 @@ Combination_Data::~Combination_Data()
 	}
 	delete[] comb;
 }
+
+int Combination_Data::Add_data(int t, const Te rivalhistory[])
+{
+	if (t >= 1)
+	{
+		comb[t - 1][rivalhistory[t - 1]][rivalhistory[t]]++;
+		count++;
+	}
+
+	return 0;
+}
+
 
 double* softmax(const double* x, int i) {
 	double* y = new double[i];
@@ -122,6 +148,8 @@ bool Win4Pre_or(int count, Te* myhistory, Te* rivalhistory) {
 // 第二引数 myhistory は自分の手の履歴を示す．添字は0からMAXKAISU-1まで使えるが，0からi-1までの履歴しか信用出来ない．
 // 第三引数 rivalhistory は相手の手の履歴を示す．添字は0からMAXKAISU-1まで使えるが，0からi-1までの履歴しか信用出来ない．
 Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
+	static Combination_Data cmb;
+	cmb.Add_data(i, rivalhistory);
 	if (i == 0)
 	{
 		return Te(rand() % 3);
