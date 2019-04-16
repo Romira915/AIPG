@@ -5,6 +5,8 @@
 
 #include <cmath>
 
+
+
 class Combination_Data
 {
 public:
@@ -17,16 +19,17 @@ public:
 
 private:
 	int count;
+	int kaisu;
 };
 
 Combination_Data::Combination_Data()
 {
-	comb = new int**[75 - 1];
-	for (int i = 0; i < 75 - 1; i++)
+	comb = new int**[(75 - 2) * 5];
+	for (int i = 0; i < (75 - 2) * 5; i++)
 	{
 		comb[i] = new int*[3];
 	}
-	for (int i = 0; i < 75 - 1; i++)
+	for (int i = 0; i < (75 - 2) * 5; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
@@ -34,7 +37,7 @@ Combination_Data::Combination_Data()
 		}
 	}
 
-	for (int i = 0; i < 75 - 1; i++)
+	for (int i = 0; i < (75 - 2) * 5; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
@@ -45,18 +48,19 @@ Combination_Data::Combination_Data()
 		}
 	}
 	count = 0;
+	kaisu = 1;
 }
 
 Combination_Data::~Combination_Data()
 {
-	for (int i = 0; i < 75 - 1; i++)
+	for (int i = 0; i < (75 - 2) * 5; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
 			delete[] comb[i][j];
 		}
 	}
-	for (int i = 0; i < 75 - 1; i++)
+	for (int i = 0; i < (75 - 2) * 5; i++)
 	{
 		delete[] comb[i];
 	}
@@ -65,10 +69,21 @@ Combination_Data::~Combination_Data()
 
 int Combination_Data::Add_data(int t, const Te rivalhistory[])
 {
-	if (t >= 1)
+	if (t >= 2)
 	{
-		comb[t - 1][rivalhistory[t - 1]][rivalhistory[t]]++;
+		comb[(t - 2) * kaisu][int(rivalhistory[t - 2])][int(rivalhistory[t - 1])]++;
 		count++;
+
+		//printf("%d ", int(rivalhistory[t - 2]));
+		//printf("%d \n", int(rivalhistory[t -1]));
+	}
+	if (t = 75)
+	{
+		kaisu++;
+		if (kaisu == 6)
+		{
+			kaisu = 1;
+		}
 	}
 
 	return 0;
