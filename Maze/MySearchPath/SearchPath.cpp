@@ -235,6 +235,7 @@ void BFS::Search(const char** filename)
 	while (Add_quese()) {
 	}
 
+	maze[goal.y][goal.x] = SHORTEST;
 	while (!(pos == Pos{ STARTXY,STARTXY }))
 	{
 		maze[path[make_pair(pos.x, pos.y)].second][path[make_pair(pos.x, pos.y)].first] = SHORTEST;

@@ -143,9 +143,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="SearchPath.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="BFS.h" />
     <ClInclude Include="Pos.h" />
   </ItemGroup>
