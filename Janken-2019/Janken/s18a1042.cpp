@@ -14,22 +14,25 @@ public:
 	int Add_data(int t, const Te rivalhistory[]);
 	int Next_probability();
 
-	int*** comb;
 
 private:
 	static const int MAXGAME = 75;
+	static const int NUMMATCH = 5;
+	int*** comb;
+	int sum_comb[3][3];
+	int count;
 	int kaisu;
-	double prob;
+	double prob[3][3];
 };
 
 Combination_Data::Combination_Data()
 {
-	comb = new int**[(MAXGAME - 2) * 5];
-	for (int i = 0; i < (MAXGAME - 2) * 5; i++)
+	comb = new int**[(MAXGAME - 2) * NUMMATCH];
+	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
 	{
 		comb[i] = new int*[3];
 	}
-	for (int i = 0; i < (MAXGAME - 2) * 5; i++)
+	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
@@ -37,7 +40,7 @@ Combination_Data::Combination_Data()
 		}
 	}
 
-	for (int i = 0; i < (MAXGAME - 2) * 5; i++)
+	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
@@ -47,19 +50,28 @@ Combination_Data::Combination_Data()
 			}
 		}
 	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+
+		}
+	}
+	count = 0;
 	kaisu = 1;
 }
 
 Combination_Data::~Combination_Data()
 {
-	for (int i = 0; i < (MAXGAME - 2) * 5; i++)
+	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
 			delete[] comb[i][j];
 		}
 	}
-	for (int i = 0; i < (MAXGAME - 2) * 5; i++)
+	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
 	{
 		delete[] comb[i];
 	}
@@ -71,6 +83,8 @@ int Combination_Data::Add_data(int t, const Te rivalhistory[])
 	if (t >= 2)
 	{
 		comb[(t - 2) * kaisu][rivalhistory[t - 2]][rivalhistory[t - 1]]++;
+		sum_comb[rivalhistory[t - 2]][rivalhistory[t - 1]]++;
+		count++;
 	}
 	if (t = MAXGAME)
 	{
@@ -80,13 +94,23 @@ int Combination_Data::Add_data(int t, const Te rivalhistory[])
 			kaisu = 1;
 		}
 	}
+	if (count == MAXGAME * NUMMATCH)
+	{
+		count = 0;
+	}
 
 	return 0;
 }
 
 int Combination_Data::Next_probability()
 {
-	
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			prob[i][j] = sum_comb[i][j] / count;
+		}
+	}
 	return 0;
 }
 
