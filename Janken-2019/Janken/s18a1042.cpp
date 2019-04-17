@@ -5,8 +5,6 @@
 
 #include <cmath>
 
-
-
 class Combination_Data
 {
 public:
@@ -14,22 +12,24 @@ public:
 	~Combination_Data();
 
 	int Add_data(int t, const Te rivalhistory[]);
+	int Next_probability();
 
 	int*** comb;
 
 private:
-	int count;
+	static const int MAXGAME = 75;
 	int kaisu;
+	double prob;
 };
 
 Combination_Data::Combination_Data()
 {
-	comb = new int**[(75 - 2) * 5];
-	for (int i = 0; i < (75 - 2) * 5; i++)
+	comb = new int**[(MAXGAME - 2) * 5];
+	for (int i = 0; i < (MAXGAME - 2) * 5; i++)
 	{
 		comb[i] = new int*[3];
 	}
-	for (int i = 0; i < (75 - 2) * 5; i++)
+	for (int i = 0; i < (MAXGAME - 2) * 5; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
@@ -37,7 +37,7 @@ Combination_Data::Combination_Data()
 		}
 	}
 
-	for (int i = 0; i < (75 - 2) * 5; i++)
+	for (int i = 0; i < (MAXGAME - 2) * 5; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
@@ -47,20 +47,19 @@ Combination_Data::Combination_Data()
 			}
 		}
 	}
-	count = 0;
 	kaisu = 1;
 }
 
 Combination_Data::~Combination_Data()
 {
-	for (int i = 0; i < (75 - 2) * 5; i++)
+	for (int i = 0; i < (MAXGAME - 2) * 5; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
 			delete[] comb[i][j];
 		}
 	}
-	for (int i = 0; i < (75 - 2) * 5; i++)
+	for (int i = 0; i < (MAXGAME - 2) * 5; i++)
 	{
 		delete[] comb[i];
 	}
@@ -71,13 +70,9 @@ int Combination_Data::Add_data(int t, const Te rivalhistory[])
 {
 	if (t >= 2)
 	{
-		comb[(t - 2) * kaisu][int(rivalhistory[t - 2])][int(rivalhistory[t - 1])]++;
-		count++;
-
-		//printf("%d ", int(rivalhistory[t - 2]));
-		//printf("%d \n", int(rivalhistory[t -1]));
+		comb[(t - 2) * kaisu][rivalhistory[t - 2]][rivalhistory[t - 1]]++;
 	}
-	if (t = 75)
+	if (t = MAXGAME)
 	{
 		kaisu++;
 		if (kaisu == 6)
@@ -86,6 +81,12 @@ int Combination_Data::Add_data(int t, const Te rivalhistory[])
 		}
 	}
 
+	return 0;
+}
+
+int Combination_Data::Next_probability()
+{
+	
 	return 0;
 }
 
