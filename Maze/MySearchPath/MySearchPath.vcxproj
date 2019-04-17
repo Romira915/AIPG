@@ -146,6 +146,9 @@
     <ClInclude Include="BFS.h" />
     <ClInclude Include="Pos.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SearchPath.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
