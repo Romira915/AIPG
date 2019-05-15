@@ -1,7 +1,7 @@
 //TODO このソースコードを参考に，自分の学籍番号.cppというファイルを作り，改造する．
 #include "stdafx.h"
-#include "stdio.h"
-#include "stdlib.h"
+#include "cstdio"
+#include "cstdlib"
 
 #include <cmath>
 
@@ -12,14 +12,14 @@ public:
 	~Combination_Data();
 
 	int Add_data(int t, const Te rivalhistory[]);
-	int Next_probability();
+	Te Next_probability(int t, const Te rivalhistory[]);
 
 
 private:
 	static const int MAXGAME = 75;
 	static const int NUMMATCH = 5;
 	int*** comb;
-	int sum_comb[3][3];
+	int comb_history[3][3];
 	int count;
 	int kaisu;
 	double prob[3][3];
@@ -27,10 +27,10 @@ private:
 
 Combination_Data::Combination_Data()
 {
-	comb = new int**[(MAXGAME - 2) * NUMMATCH];
+	comb = new int** [(MAXGAME - 2) * NUMMATCH];
 	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
 	{
-		comb[i] = new int*[3];
+		comb[i] = new int* [3];
 	}
 	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
 	{
@@ -83,15 +83,15 @@ int Combination_Data::Add_data(int t, const Te rivalhistory[])
 	if (t >= 2)
 	{
 		comb[(t - 2) * kaisu][rivalhistory[t - 2]][rivalhistory[t - 1]]++;
-		sum_comb[rivalhistory[t - 2]][rivalhistory[t - 1]]++;
+		comb_history[rivalhistory[t - 2]][rivalhistory[t - 1]]++;
 		count++;
 	}
-	if (t = MAXGAME)
+	if (t == MAXGAME)
 	{
 		kaisu++;
-		if (kaisu == 6)
+		if (kaisu == 5)
 		{
-			kaisu = 1;
+			kaisu = 0;
 		}
 	}
 	if (count == MAXGAME * NUMMATCH)
@@ -102,16 +102,18 @@ int Combination_Data::Add_data(int t, const Te rivalhistory[])
 	return 0;
 }
 
-int Combination_Data::Next_probability()
+Te Combination_Data::Next_probability(int t, const Te rivalhistory[])
 {
+	int max = 0;
+	Te prob;
 	for (int i = 0; i < 3; i++)
 	{
-		for (int j = 0; j < 3; j++)
-		{
-			prob[i][j] = sum_comb[i][j] / count;
+		if (comb_history[rivalhistory[t - 1]][i] >= max) {
+			max = comb_history[rivalhistory[t - 1]][i];
+			prob = Te(i);
 		}
 	}
-	return 0;
+	return prob;
 }
 
 
@@ -139,7 +141,7 @@ double* softmax(const double* x, int i) {
 }
 
 double* Te_probability(int count, const Te rivalhistory[]) {
-	double te_prob[3];
+	double te_prob[3] = { 0,0,0 };
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -159,7 +161,7 @@ double* Te_probability(int count, const Te rivalhistory[]) {
 	return te_prob;
 }
 
-bool All_Win(int count, const Te* myhistory, const Te* rivalhistory) {
+bool All_Win(int count, const Te * myhistory, const Te * rivalhistory) {
 	for (int i = 1; i < count; i++)
 	{
 		if ((myhistory[i] - rivalhistory[i] + 3) % 3 != 2)
@@ -171,7 +173,7 @@ bool All_Win(int count, const Te* myhistory, const Te* rivalhistory) {
 	return true;
 }
 
-bool Win4Pre_or(int count, Te* myhistory, Te* rivalhistory) {
+bool Win4Pre_or(int count, Te * myhistory, Te * rivalhistory) {
 	for (int i = 1; i < count; i++)
 	{
 		if ((myhistory[i - 1] + 2) % 3 != rivalhistory[i] % 3)
@@ -203,5 +205,5 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return Te((myhistory[i - 1] + 1) % 3);
 	}
 
-	return Te(rand() % 3);
+	return rand() % 100 > 20 ? cmb.Next_probability(i, rivalhistory) : Te(rand() % 3);
 }

@@ -11,6 +11,8 @@
     <OutputPath>.</OutputPath>
     <Name>BreadthFirstSearch</Name>
     <RootNamespace>BreadthFirstSearch</RootNamespace>
+    <InterpreterId>
+    </InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
