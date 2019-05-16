@@ -91,6 +91,12 @@ int Combination_Data::Add_data(int t, const Te rivalhistory[])
 		kaisu++;
 		if (kaisu == 5)
 		{
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 3; j++)
+				{
+					comb_history[i][j] = 0;
+				}
+			}
 			kaisu = 0;
 		}
 	}
@@ -205,5 +211,5 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return Te((myhistory[i - 1] + 1) % 3);
 	}
 
-	return rand() % 100 > 20 ? cmb.Next_probability(i, rivalhistory) : Te(rand() % 3);
+	return rand() % 100 > 0 ? cmb.Next_probability(i, rivalhistory) : Te(rand() % 3);
 }
