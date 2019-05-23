@@ -3,10 +3,16 @@
 #include <queue>
 #include <vector>
 
+#define STARTXY 1
+#define ROAD 0
+#define VISITED 500
+#define SHORTEST 1000
+
 class Astar
 {
 public:
 	Astar();
+	Astar(int, int, int**);
 	~Astar();
 
 private:
@@ -18,49 +24,21 @@ private:
 		~Pos();
 
 		bool operator>(const Pos&) const;
+		inline int Get_x() const;
+		inline int Get_y() const;
+		inline int Get_cost() const;
+		inline int Get_score() const;
 
 	private:
 		int x, y;
 		int cost, score;
 	};
 
+	void init();
+
 	std::priority_queue< Pos, std::vector<Pos>, std::greater<Pos >> nodeQ;
+	int** maze;
+	int height, width;
+	int x, y;
 };
 
-Astar::Astar()
-{
-}
-
-Astar::~Astar()
-{
-}
-
-Astar::Pos::Pos() {
-	x = 0;
-	y = 0;
-	score = 0;
-	cost = 0;
-}
-
-inline Astar::Pos::Pos(int xin, int yin, int scorein, int costin)
-{
-	x = xin;
-	y = yin;
-	score = scorein;
-	cost = costin;
-}
-
-Astar::Pos::~Pos() {
-
-}
-
-inline bool Astar::Pos::operator>(const Pos& p)const {
-	if (this->score != p.score)
-	{
-		return this->score > p.score;
-	}
-	else
-	{
-		return this->cost > p.cost;
-	}
-}
