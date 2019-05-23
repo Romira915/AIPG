@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.572
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28917.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MakeMaze", "MakeMaze\MakeMaze.csproj", "{866980C7-C20D-4ED5-A744-91DC93F12A4F}"
 EndProject
@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MySearchPath", "MySearchPath\MySearchPath.vcxproj", "{984942E8-E9A9-47C8-A138-C07FBFEA3667}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AStarVer", "AStarVer\AStarVer.vcxproj", "{D1371045-A490-45DB-BF7F-C779E08EF7DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,20 @@ Global
 		{984942E8-E9A9-47C8-A138-C07FBFEA3667}.Release|Win32.Build.0 = Release|Win32
 		{984942E8-E9A9-47C8-A138-C07FBFEA3667}.Release|x64.ActiveCfg = Release|x64
 		{984942E8-E9A9-47C8-A138-C07FBFEA3667}.Release|x64.Build.0 = Release|x64
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Debug|Win32.Build.0 = Debug|Win32
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Debug|x64.ActiveCfg = Debug|x64
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Debug|x64.Build.0 = Debug|x64
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Release|Any CPU.ActiveCfg = Release|Win32
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Release|Win32.ActiveCfg = Release|Win32
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Release|Win32.Build.0 = Release|Win32
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Release|x64.ActiveCfg = Release|x64
+		{D1371045-A490-45DB-BF7F-C779E08EF7DD}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
