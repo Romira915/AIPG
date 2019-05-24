@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-
+#include "Astar.h"
 
 #define LEN 256
 
@@ -47,7 +47,6 @@ void writeMaze(char* filename, int w, int h, int maze[LEN][LEN]) {
 }
 
 int main(int argc, char** argv) {
-	int i;
 	const char *(test[])[3] = {
 		{ "dummy", "maze8060A.csv", "maze8060A-out.csv" },
 		{ "dummy", "maze8060B.csv", "maze8060B-out.csv" },
@@ -56,20 +55,8 @@ int main(int argc, char** argv) {
 		{ "dummy", "maze8060E.csv", "maze8060E-out.csv" },
 		{ "dummy", "maze8060F.csv", "maze8060F-out.csv" },
 	};
+	int** maze = NULL;
 
-	if (argc == 1) {
-		for (i = 0; i < 6; i++) {
-			printf("%s‚Ì–À˜H‚ðƒeƒXƒg\n", test[i][1]);
-			if (main0(3, test[i]) == 0) {
-				printf("ƒS[ƒ‹‚Ü‚Å‚ÌŒo˜H‚ªŒ©‚Â‚©‚è‚Ü‚µ‚½D‚µ‚©‚µCƒSƒ~‚Í‚ ‚é‚©‚à‚µ‚ê‚Ü‚¹‚ñD\n\n");
-			} else {
-				printf("ƒS[ƒ‹‚Ü‚Å‚ÌŒo˜H‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½D\n\n");
-			}
-		}
-		printf("HIT ENTER KEY");
-		while (getchar() != '\n');
-		return 0;
-	} else {
-		return main0(argc, argv);
-	}
+	Astar as(60, 80, maze);
+	
 }

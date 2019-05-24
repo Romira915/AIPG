@@ -1,4 +1,5 @@
 #include "Astar.h"
+#include <cstdlib>
 
 Astar::Astar()
 {
@@ -23,6 +24,15 @@ void Astar::init()
 	while (!nodeQ.empty()) { nodeQ.pop(); }
 	x = STARTXY;
 	y = STARTXY;
+	goal_x = 2 * width - 1;
+	goal_y = 2 * height - 1;
+
+	nodeQ.push(Pos(x, y, Manhattan_dist(x, y, goal_x, goal_y), Manhattan_dist(x, y, STARTXY, STARTXY)));
+}
+
+inline int Astar::Manhattan_dist(int x, int y, int dx, int dy) const
+{
+	return abs(dx - x) + abs(dy - y);
 }
 
 Astar::Pos::Pos() {
@@ -30,6 +40,11 @@ Astar::Pos::Pos() {
 	y = 0;
 	score = 0;
 	cost = 0;
+}
+
+inline Astar::Pos::Pos(int xin, int yin) {
+	x = xin;
+	y = yin;
 }
 
 inline Astar::Pos::Pos(int xin, int yin, int scorein, int costin)
@@ -53,6 +68,15 @@ inline bool Astar::Pos::operator>(const Pos& p) const {
 	{
 		return this->cost > p.cost;
 	}
+}
+
+Astar::Pos Astar::Pos::operator=(const Pos& p)
+{
+	this->x = p.x;
+	this->y = p.y;
+	this->score = p.score;
+	this->cost = p.cost;
+	return *this;
 }
 
 inline int Astar::Pos::Get_x() const
