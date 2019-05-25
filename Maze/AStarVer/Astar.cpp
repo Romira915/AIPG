@@ -12,14 +12,14 @@ Astar::Astar(int h,int w,int** input_maze)
 	height = h;
 	width = w;
 	maze = input_maze;
-	init();
+	Init();
 }
 
 Astar::~Astar()
 {
 }
 
-void Astar::init()
+void Astar::Init()
 {
 	while (!nodeQ.empty()) { nodeQ.pop(); }
 	x = STARTXY;
@@ -27,7 +27,9 @@ void Astar::init()
 	goal_x = 2 * width - 1;
 	goal_y = 2 * height - 1;
 
-	nodeQ.push(Pos(x, y, Manhattan_dist(x, y, goal_x, goal_y), Manhattan_dist(x, y, STARTXY, STARTXY)));
+	nodeQ.push(Pos(x, y, Manhattan_dist(x, y, goal_x, goal_y), 0));
+	x = goal_x;
+	y = goal_y;
 }
 
 inline int Astar::Manhattan_dist(int x, int y, int dx, int dy) const
@@ -45,6 +47,8 @@ Astar::Pos::Pos() {
 inline Astar::Pos::Pos(int xin, int yin) {
 	x = xin;
 	y = yin;
+	score = -1;
+	cost = -1;
 }
 
 inline Astar::Pos::Pos(int xin, int yin, int scorein, int costin)

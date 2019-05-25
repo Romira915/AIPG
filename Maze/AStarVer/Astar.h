@@ -36,7 +36,7 @@ private:
 		int cost, score;
 	};
 
-	void init();
+	void Init();
 	inline int Manhattan_dist(int, int, int, int) const;
 
 	std::priority_queue< Pos, std::vector<Pos>, std::greater<Pos >> nodeQ;
