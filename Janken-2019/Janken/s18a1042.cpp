@@ -15,7 +15,7 @@ public:
 	int Add_data(int t, const Te myhistroy[], const Te rivalhistory[]);
 	Te Next_probability(int t, const Te rivalhistory[]);
 
-
+	void debug();
 private:
 	static const int MAXGAME = 75 - 1;
 	static const int NUMMATCH = 5 - 1;
@@ -31,10 +31,10 @@ private:
 
 Combination_Data::Combination_Data()
 {
-	comb = new int** [(MAXGAME - 2) * NUMMATCH];
+	comb = new int**[(MAXGAME - 2) * NUMMATCH];
 	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
 	{
-		comb[i] = new int* [3];
+		comb[i] = new int*[3];
 	}
 	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
 	{
@@ -95,7 +95,6 @@ int Combination_Data::Add_data(int t, const Te myhistroy[], const Te rivalhistor
 		mycomb_history[myhistroy[t - 2]][rivalhistory[t - 1]]++;
 
 		count++;
-		printf("%d %d\n", count, kaisu);
 	}
 	if (t == MAXGAME)
 	{
@@ -109,13 +108,14 @@ int Combination_Data::Add_data(int t, const Te myhistroy[], const Te rivalhistor
 					mycomb_history[i][j] = 0;
 				}
 			}
+			count = 0;
 			kaisu = 0;
 		}
 	}
-	if (count == MAXGAME * NUMMATCH)
+	/*if (count == (MAXGAME + 1) * (NUMMATCH + 1) - 1)
 	{
 		count = 0;
-	}
+	}*/
 
 	return 0;
 }
@@ -132,6 +132,11 @@ Te Combination_Data::Next_probability(int t, const Te rivalhistory[])
 		}
 	}
 	return prob;
+}
+
+void Combination_Data::debug()
+{
+	printf("count:%d kaisu:%d\n", count, kaisu);
 }
 
 
@@ -189,6 +194,7 @@ bool Win4Pre_or(int count, Te* myhistory, Te* rivalhistory) {
 Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	static Combination_Data cmb;
 	cmb.Add_data(i, myhistory, rivalhistory);
+	cmb.debug();
 	if (i == 0)
 	{
 		return Te(rand() % 3);
