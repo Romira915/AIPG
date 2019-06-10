@@ -11,15 +11,19 @@ public:
 	Combination_Data();
 	~Combination_Data();
 
-	int Add_data(int t, const Te rivalhistory[]);
+	void Update();
+	int Add_data(int t, const Te myhistroy[], const Te rivalhistory[]);
 	Te Next_probability(int t, const Te rivalhistory[]);
 
 
 private:
-	static const int MAXGAME = 75;
-	static const int NUMMATCH = 5;
+	static const int MAXGAME = 75 - 1;
+	static const int NUMMATCH = 5 - 1;
 	int*** comb;
+	//相手の前々回と前回の手の組み合わせ
 	int comb_history[3][3];
+	//自分の前々回と相手の前回の手の組み合わせ
+	int mycomb_history[3][3];
 	int count;
 	int kaisu;
 	double prob[3][3];
@@ -59,7 +63,7 @@ Combination_Data::Combination_Data()
 		}
 	}
 	count = 0;
-	kaisu = 1;
+	kaisu = 0;
 }
 
 Combination_Data::~Combination_Data()
@@ -78,23 +82,31 @@ Combination_Data::~Combination_Data()
 	delete[] comb;
 }
 
-int Combination_Data::Add_data(int t, const Te rivalhistory[])
+void Combination_Data::Update()
+{
+}
+
+int Combination_Data::Add_data(int t, const Te myhistroy[], const Te rivalhistory[])
 {
 	if (t >= 2)
 	{
-		comb[(t - 2) * kaisu][rivalhistory[t - 2]][rivalhistory[t - 1]]++;
 		comb_history[rivalhistory[t - 2]][rivalhistory[t - 1]]++;
+
+		mycomb_history[myhistroy[t - 2]][rivalhistory[t - 1]]++;
+
 		count++;
+		printf("%d %d\n", count, kaisu);
 	}
 	if (t == MAXGAME)
 	{
 		kaisu++;
-		if (kaisu == 5)
+		if (kaisu == NUMMATCH)
 		{
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 3; j++)
 				{
 					comb_history[i][j] = 0;
+					mycomb_history[i][j] = 0;
 				}
 			}
 			kaisu = 0;
@@ -146,28 +158,7 @@ double* softmax(const double* x, int i) {
 	return y;
 }
 
-double* Te_probability(int count, const Te rivalhistory[]) {
-	double te_prob[3] = { 0,0,0 };
-
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < count - 1; j++)
-		{
-			if (rivalhistory[j] == i)
-			{
-				te_prob[i]++;
-			}
-		}
-	}
-	for (int i = 0; i < 3; i++)
-	{
-		te_prob[i] = te_prob[i] / count;
-	}
-
-	return te_prob;
-}
-
-bool All_Win(int count, const Te * myhistory, const Te * rivalhistory) {
+bool All_Win(int count, const Te* myhistory, const Te* rivalhistory) {
 	for (int i = 1; i < count; i++)
 	{
 		if ((myhistory[i] - rivalhistory[i] + 3) % 3 != 2)
@@ -179,7 +170,7 @@ bool All_Win(int count, const Te * myhistory, const Te * rivalhistory) {
 	return true;
 }
 
-bool Win4Pre_or(int count, Te * myhistory, Te * rivalhistory) {
+bool Win4Pre_or(int count, Te* myhistory, Te* rivalhistory) {
 	for (int i = 1; i < count; i++)
 	{
 		if ((myhistory[i - 1] + 2) % 3 != rivalhistory[i] % 3)
@@ -197,7 +188,7 @@ bool Win4Pre_or(int count, Te * myhistory, Te * rivalhistory) {
 // 第三引数 rivalhistory は相手の手の履歴を示す．添字は0からMAXKAISU-1まで使えるが，0からi-1までの履歴しか信用出来ない．
 Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	static Combination_Data cmb;
-	cmb.Add_data(i, rivalhistory);
+	cmb.Add_data(i, myhistory, rivalhistory);
 	if (i == 0)
 	{
 		return Te(rand() % 3);
@@ -211,5 +202,5 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return Te((myhistory[i - 1] + 1) % 3);
 	}
 
-	return rand() % 100 > 0 ? cmb.Next_probability(i, rivalhistory) : Te(rand() % 3);
+	return rand() % 100 > 80 ? cmb.Next_probability(i, rivalhistory) : Te(rand() % 3);
 }
