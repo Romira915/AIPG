@@ -15,15 +15,23 @@ public:
 	int Add_data(int t, const Te myhistroy[], const Te rivalhistory[]);
 	Te Next_probability(int t, const Te rivalhistory[]);
 
+	int Winning_count();
+
 	void debug();
 private:
 	static const int MAXGAME = 75 - 1;
 	static const int NUMMATCH = 5 - 1;
+
+	int t;
+	Te* myhistroy;
+	Te* rivalhistory;
+
 	int*** comb;
 	//相手の前々回と前回の手の組み合わせ
 	int comb_history[3][3];
 	//自分の前々回と相手の前回の手の組み合わせ
 	int mycomb_history[3][3];
+
 	int count;
 	int kaisu;
 	double prob[3][3];
@@ -31,10 +39,10 @@ private:
 
 Combination_Data::Combination_Data()
 {
-	comb = new int**[(MAXGAME - 2) * NUMMATCH];
+	comb = new int** [(MAXGAME - 2) * NUMMATCH];
 	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
 	{
-		comb[i] = new int*[3];
+		comb[i] = new int* [3];
 	}
 	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
 	{
@@ -88,18 +96,18 @@ void Combination_Data::Update()
 
 int Combination_Data::Add_data(int t, const Te myhistroy[], const Te rivalhistory[])
 {
+	count++;
 	if (t >= 2)
 	{
 		comb_history[rivalhistory[t - 2]][rivalhistory[t - 1]]++;
 
 		mycomb_history[myhistroy[t - 2]][rivalhistory[t - 1]]++;
 
-		count++;
 	}
 	if (t == MAXGAME)
 	{
 		kaisu++;
-		if (kaisu == NUMMATCH)
+		if (kaisu == NUMMATCH + 1)
 		{
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 3; j++)
@@ -112,10 +120,6 @@ int Combination_Data::Add_data(int t, const Te myhistroy[], const Te rivalhistor
 			kaisu = 0;
 		}
 	}
-	/*if (count == (MAXGAME + 1) * (NUMMATCH + 1) - 1)
-	{
-		count = 0;
-	}*/
 
 	return 0;
 }
@@ -126,12 +130,17 @@ Te Combination_Data::Next_probability(int t, const Te rivalhistory[])
 	Te prob;
 	for (int i = 0; i < 3; i++)
 	{
-		if (comb_history[rivalhistory[t - 1]][i] >= max) {
-			max = comb_history[rivalhistory[t - 1]][i];
+		if (mycomb_history[rivalhistory[t - 1]][i] >= max) {
+			max = mycomb_history[rivalhistory[t - 1]][i];
 			prob = Te(i);
 		}
 	}
 	return prob;
+}
+
+int Combination_Data::Winning_count()
+{
+	return 0;
 }
 
 void Combination_Data::debug()
@@ -194,7 +203,6 @@ bool Win4Pre_or(int count, Te* myhistory, Te* rivalhistory) {
 Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	static Combination_Data cmb;
 	cmb.Add_data(i, myhistory, rivalhistory);
-	cmb.debug();
 	if (i == 0)
 	{
 		return Te(rand() % 3);
@@ -208,5 +216,5 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return Te((myhistory[i - 1] + 1) % 3);
 	}
 
-	return rand() % 100 > 80 ? cmb.Next_probability(i, rivalhistory) : Te(rand() % 3);
+	return rand() % 100 > 0 ? cmb.Next_probability(i, myhistory) : Te(rand() % 3);
 }
