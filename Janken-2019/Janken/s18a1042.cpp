@@ -12,25 +12,30 @@ public:
 	~Combination_Data();
 
 	void Update();
-	int Add_data(int t, const Te myhistroy[], const Te rivalhistory[]);
-	Te Next_probability(int t, const Te rivalhistory[]);
-
-	int Winning_count();
+	void Set_data(int, Te*, Te*);
+	Te Next_probability();
+	double LossRate(int);
 
 	void debug();
+
 private:
+	int Add_data();
+	int Losing_count();
+
 	static const int MAXGAME = 75 - 1;
 	static const int NUMMATCH = 5 - 1;
 
 	int t;
-	Te* myhistroy;
+	Te* myhistory;
 	Te* rivalhistory;
 
 	int*** comb;
 	//相手の前々回と前回の手の組み合わせ
-	int comb_history[3][3];
+	int rivalcomb_history[3][3];
 	//自分の前々回と相手の前回の手の組み合わせ
 	int mycomb_history[3][3];
+
+	int losed_count;
 
 	int count;
 	int kaisu;
@@ -70,6 +75,7 @@ Combination_Data::Combination_Data()
 
 		}
 	}
+	losed_count = 0;
 	count = 0;
 	kaisu = 0;
 }
@@ -92,16 +98,25 @@ Combination_Data::~Combination_Data()
 
 void Combination_Data::Update()
 {
+	Add_data();
+	Losing_count();
 }
 
-int Combination_Data::Add_data(int t, const Te myhistroy[], const Te rivalhistory[])
+void Combination_Data::Set_data(int u, Te* my, Te* rival)
+{
+	t = u;
+	myhistory = my;
+	rivalhistory = rival;
+}
+
+int Combination_Data::Add_data()
 {
 	count++;
 	if (t >= 2)
 	{
-		comb_history[rivalhistory[t - 2]][rivalhistory[t - 1]]++;
+		rivalcomb_history[rivalhistory[t - 2]][rivalhistory[t - 1]]++;
 
-		mycomb_history[myhistroy[t - 2]][rivalhistory[t - 1]]++;
+		mycomb_history[myhistory[t - 2]][rivalhistory[t - 1]]++;
 
 	}
 	if (t == MAXGAME)
@@ -112,7 +127,7 @@ int Combination_Data::Add_data(int t, const Te myhistroy[], const Te rivalhistor
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 3; j++)
 				{
-					comb_history[i][j] = 0;
+					rivalcomb_history[i][j] = 0;
 					mycomb_history[i][j] = 0;
 				}
 			}
@@ -124,23 +139,39 @@ int Combination_Data::Add_data(int t, const Te myhistroy[], const Te rivalhistor
 	return 0;
 }
 
-Te Combination_Data::Next_probability(int t, const Te rivalhistory[])
+Te Combination_Data::Next_probability()
 {
 	int max = 0;
 	Te prob;
 	for (int i = 0; i < 3; i++)
 	{
-		if (mycomb_history[rivalhistory[t - 1]][i] >= max) {
-			max = mycomb_history[rivalhistory[t - 1]][i];
+		if (mycomb_history[myhistory[t - 1]][i] >= max) {
+			max = mycomb_history[myhistory[t - 1]][i];
 			prob = Te(i);
 		}
 	}
 	return prob;
 }
 
-int Combination_Data::Winning_count()
+double Combination_Data::LossRate(int start)
 {
-	return 0;
+	if (count >= start)
+	{
+		return (double)losed_count / (count + 1);
+	}
+	return 1.0;
+}
+
+int Combination_Data::Losing_count()
+{
+	if (t >= 1)
+	{
+		if ((myhistory[t - 1] - rivalhistory[t - 1] + 3) % 3 == 1)
+		{
+			losed_count++;
+		}
+	}
+	return losed_count;
 }
 
 void Combination_Data::debug()
@@ -202,7 +233,9 @@ bool Win4Pre_or(int count, Te* myhistory, Te* rivalhistory) {
 // 第三引数 rivalhistory は相手の手の履歴を示す．添字は0からMAXKAISU-1まで使えるが，0からi-1までの履歴しか信用出来ない．
 Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	static Combination_Data cmb;
-	cmb.Add_data(i, myhistory, rivalhistory);
+	cmb.Set_data(i, myhistory, rivalhistory);
+	cmb.Update();
+	//cmb.debug();
 	if (i == 0)
 	{
 		return Te(rand() % 3);
@@ -216,5 +249,5 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return Te((myhistory[i - 1] + 1) % 3);
 	}
 
-	return rand() % 100 > 0 ? cmb.Next_probability(i, myhistory) : Te(rand() % 3);
+	return cmb.LossRate(75 * 2) > 0.70 ? Te(rand() % 3) : cmb.Next_probability();
 }
