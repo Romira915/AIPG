@@ -20,7 +20,7 @@ public:
 
 private:
 	int Add_data();
-	int Losing_count();
+	int Losing_counter();
 
 	static const int MAXGAME = 75 - 1;
 	static const int NUMMATCH = 5 - 1;
@@ -29,7 +29,6 @@ private:
 	Te* myhistory;
 	Te* rivalhistory;
 
-	int*** comb;
 	//相手の前々回と前回の手の組み合わせ
 	int rivalcomb_history[3][3];
 	//自分の前々回と相手の前回の手の組み合わせ
@@ -39,42 +38,10 @@ private:
 
 	int count;
 	int kaisu;
-	double prob[3][3];
 };
 
 Combination_Data::Combination_Data()
 {
-	comb = new int** [(MAXGAME - 2) * NUMMATCH];
-	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
-	{
-		comb[i] = new int* [3];
-	}
-	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			comb[i][j] = new int[3];
-		}
-	}
-
-	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			for (int k = 0; k < 3; k++)
-			{
-				comb[i][j][k] = 0;
-			}
-		}
-	}
-
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-
-		}
-	}
 	losed_count = 0;
 	count = 0;
 	kaisu = 0;
@@ -82,24 +49,12 @@ Combination_Data::Combination_Data()
 
 Combination_Data::~Combination_Data()
 {
-	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			delete[] comb[i][j];
-		}
-	}
-	for (int i = 0; i < (MAXGAME - 2) * NUMMATCH; i++)
-	{
-		delete[] comb[i];
-	}
-	delete[] comb;
 }
 
 void Combination_Data::Update()
 {
 	Add_data();
-	Losing_count();
+	Losing_counter();
 }
 
 void Combination_Data::Set_data(int u, Te* my, Te* rival)
@@ -115,9 +70,7 @@ int Combination_Data::Add_data()
 	if (t >= 2)
 	{
 		rivalcomb_history[rivalhistory[t - 2]][rivalhistory[t - 1]]++;
-
 		mycomb_history[myhistory[t - 2]][rivalhistory[t - 1]]++;
-
 	}
 	if (t == MAXGAME)
 	{
@@ -131,6 +84,7 @@ int Combination_Data::Add_data()
 					mycomb_history[i][j] = 0;
 				}
 			}
+			losed_count = 0;
 			count = 0;
 			kaisu = 0;
 		}
@@ -162,7 +116,7 @@ double Combination_Data::LossRate(int start)
 	return 1.0;
 }
 
-int Combination_Data::Losing_count()
+int Combination_Data::Losing_counter()
 {
 	if (t >= 1)
 	{
@@ -176,7 +130,7 @@ int Combination_Data::Losing_count()
 
 void Combination_Data::debug()
 {
-	printf("count:%d kaisu:%d\n", count, kaisu);
+	//printf("count:%d kaisu:%d\n", count, kaisu);
 }
 
 
@@ -235,7 +189,7 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	static Combination_Data cmb;
 	cmb.Set_data(i, myhistory, rivalhistory);
 	cmb.Update();
-	//cmb.debug();
+	cmb.debug();
 	if (i == 0)
 	{
 		return Te(rand() % 3);
@@ -249,5 +203,5 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return Te((myhistory[i - 1] + 1) % 3);
 	}
 
-	return cmb.LossRate(75 * 2) > 0.70 ? Te(rand() % 3) : cmb.Next_probability();
+	return cmb.LossRate(75) > 0.45 ? Te(rand() % 3) : cmb.Next_probability();
 }
