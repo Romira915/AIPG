@@ -203,5 +203,5 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return Te((myhistory[i - 1] + 1) % 3);
 	}
 
-	return cmb.LossRate(75) > 0.45 ? Te(rand() % 3) : cmb.Next_probability();
+	return cmb.LossRate(75) > 0.4 ? Te(rand() % 3) : Te((cmb.Next_probability() + 2) % 3);
 }

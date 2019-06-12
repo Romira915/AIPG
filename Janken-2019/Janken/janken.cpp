@@ -633,13 +633,13 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	fprintf(fp2, "\n");
 	for (i = 0; i < numofplayer; i++) {
-		printf("%8s:%+5d ", playername[i], point[i]);
+		// printf("%8s:%+5d ", playername[i], point[i]);
 		fprintf(fp2, "%s,\"=IF(C%d>=0,C%d/C$3*15+25,25-C%d/C$4*15)\",%d", playername[i], i + 2, i + 2, i + 2, point[i]);
 		for (j = 0; j < numofplayer; j++) {
-			printf(",%+4d", result[i*numofplayer + j]);
+			// printf(",%+4d", result[i*numofplayer + j]);
 			fprintf(fp2, ",%d", result[i*numofplayer + j]);
 		}
-		printf("\n");
+		//printf("\n");
 		fprintf(fp2, "\n");
 	}
 
