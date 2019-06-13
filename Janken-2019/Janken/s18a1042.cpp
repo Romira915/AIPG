@@ -14,6 +14,7 @@ public:
 	void Update();
 	void Set_data(int, Te*, Te*);
 	Te Next_probability();
+	Te Next_markov();
 	double LossRate(int);
 
 	void debug();
@@ -21,6 +22,8 @@ public:
 private:
 	int Add_data();
 	int Losing_counter();
+	// 引き分け:0 負け:1 勝ち:2
+	Te WinorLose(Te, Te);
 
 	static const int MAXGAME = 75 - 1;
 	static const int NUMMATCH = 5 - 1;
@@ -33,6 +36,8 @@ private:
 	int rivalcomb_history[3][3];
 	//自分の前々回と相手の前回の手の組み合わせ
 	int mycomb_history[3][3];
+	// マルコフ戦略用データ [前の状態][勝敗][次の状態]
+	int markov_history[3][3][3];
 
 	int losed_count;
 
@@ -71,6 +76,7 @@ int Combination_Data::Add_data()
 	{
 		rivalcomb_history[rivalhistory[t - 2]][rivalhistory[t - 1]]++;
 		mycomb_history[myhistory[t - 2]][rivalhistory[t - 1]]++;
+		markov_history[rivalhistory[t - 2]][WinorLose(myhistory[t - 2], rivalhistory[t - 2])][rivalhistory[t - 1]]++;
 	}
 	if (t == MAXGAME)
 	{
@@ -82,6 +88,10 @@ int Combination_Data::Add_data()
 				{
 					rivalcomb_history[i][j] = 0;
 					mycomb_history[i][j] = 0;
+					for (int k = 0; k < 3; k++)
+					{
+						markov_history[i][j][k] = 0;
+					}
 				}
 			}
 			losed_count = 0;
@@ -107,6 +117,33 @@ Te Combination_Data::Next_probability()
 	return prob;
 }
 
+Te Combination_Data::Next_markov()
+{
+	double markov_probability[3][3][3] = { 0 };
+	double max = 0;
+	Te next;
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			for (int k = 0; k < 3; k++)
+			{
+				markov_probability[i][j][k] = double(markov_history[i][j][k]) / (count + 1);
+			}
+		}
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		if (markov_probability[rivalhistory[t - 1]][WinorLose(myhistory[t - 1], rivalhistory[t - 1])][i] >= max) {
+			max = markov_probability[rivalhistory[t - 1]][WinorLose(myhistory[t - 1], rivalhistory[t - 1])][i];
+			next = Te(i);
+		}
+	}
+
+	return next;
+}
+
 double Combination_Data::LossRate(int start)
 {
 	if (count >= start)
@@ -120,12 +157,17 @@ int Combination_Data::Losing_counter()
 {
 	if (t >= 1)
 	{
-		if ((myhistory[t - 1] - rivalhistory[t - 1] + 3) % 3 == 1)
+		if (WinorLose(myhistory[t - 1], rivalhistory[t - 1]) == 1)
 		{
 			losed_count++;
 		}
 	}
 	return losed_count;
+}
+
+Te Combination_Data::WinorLose(Te my, Te rival)
+{
+	return Te((my - rival + 3) % 3);
 }
 
 void Combination_Data::debug()
@@ -203,5 +245,6 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return Te((myhistory[i - 1] + 1) % 3);
 	}
 
-	return cmb.LossRate(75) > 0.4 ? Te(rand() % 3) : Te((cmb.Next_probability() + 2) % 3);
+	//return cmb.LossRate(75) > 0.376 ? Te(rand() % 3) : Te((cmb.Next_probability() + 2) % 3);
+	return cmb.LossRate(75) > 1 ? Te(rand() % 3) : Te((cmb.Next_markov() + 2) % 3);
 }
