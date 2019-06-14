@@ -1,7 +1,7 @@
 //TODO このソースコードを参考に，自分の学籍番号.cppというファイルを作り，改造する．
 #include "stdafx.h"
-#include "cstdio"
 #include "cstdlib"
+#include <iostream>
 
 #include <cmath>
 
@@ -42,6 +42,8 @@ private:
 	int losed_count;
 
 	int count;
+	Te allmyhistroy[(MAXGAME + 1) * (NUMMATCH + 1)];
+	Te allrivalhistory[(MAXGAME + 1) * (NUMMATCH + 1)];
 	int kaisu;
 };
 
@@ -71,7 +73,6 @@ void Combination_Data::Set_data(int u, Te* my, Te* rival)
 
 int Combination_Data::Add_data()
 {
-	count++;
 	if (t >= 2)
 	{
 		rivalcomb_history[rivalhistory[t - 2]][rivalhistory[t - 1]]++;
@@ -94,11 +95,17 @@ int Combination_Data::Add_data()
 					}
 				}
 			}
+			for (int i = 0; i < (MAXGAME + 1) * (NUMMATCH + 1); i++)
+			{
+				allmyhistroy[i] = Te(0);
+				allrivalhistory[i] = Te(0);
+			}
 			losed_count = 0;
 			count = 0;
 			kaisu = 0;
 		}
 	}
+	count++;
 
 	return 0;
 }
@@ -150,7 +157,7 @@ double Combination_Data::LossRate(int start)
 	{
 		return (double)losed_count / (count + 1);
 	}
-	return 1.0;
+	return 0;
 }
 
 int Combination_Data::Losing_counter()
@@ -172,31 +179,6 @@ Te Combination_Data::WinorLose(Te my, Te rival)
 
 void Combination_Data::debug()
 {
-	//printf("count:%d kaisu:%d\n", count, kaisu);
-}
-
-
-double* softmax(const double* x, int i) {
-	double* y = new double[i];
-	double sum = 0, max = 0;
-
-	for (int j = 0; j < i; j++)
-	{
-		if (x[j] >= max)
-		{
-			max = x[j];
-		}
-	}
-	for (int j = 0; j < i; j++)
-	{
-		sum += exp(x[j] - max);
-	}
-	for (int j = 0; j < i; j++)
-	{
-		y[j] = exp(x[j] - max) / exp(sum);
-	}
-
-	return y;
 }
 
 bool All_Win(int count, const Te* myhistory, const Te* rivalhistory) {
@@ -246,5 +228,5 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	}
 
 	//return cmb.LossRate(75) > 0.376 ? Te(rand() % 3) : Te((cmb.Next_probability() + 2) % 3);
-	return cmb.LossRate(75) > 1 ? Te(rand() % 3) : Te((cmb.Next_markov() + 2) % 3);
+	return cmb.LossRate(40) > 0.387 ? Te(rand() % 3) : Te((cmb.Next_markov() + 2) % 3);
 }
