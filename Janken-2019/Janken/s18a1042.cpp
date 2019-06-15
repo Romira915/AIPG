@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "cstdlib"
 #include <iostream>
-#include <fstream>
 
 #include <cmath>
 
@@ -97,17 +96,6 @@ int Combination_Data::Add_data()
 		mycomb_history[myhistory[t - 2]][rivalhistory[t - 1]]++;
 		markov_history[rivalhistory[t - 2]][WinorLose(myhistory[t - 2], rivalhistory[t - 2])][rivalhistory[t - 1]]++;
 	}
-	/*if (t == MAXGAME)
-	{
-		kaisu++;
-		if (kaisu == NUMMATCH + 1)
-		{
-
-			losed_count = 0;
-			count = -1;
-			kaisu = 0;
-		}
-	}*/
 
 	return 0;
 }
@@ -289,7 +277,6 @@ Te Combination_Data::WinorLose(Te my, Te rival)
 
 void Combination_Data::debug()
 {
-	//std::cout << "count " << count << "  t " << t << '\n';
 	if (count == 374)
 	{
 		for (int i = 0; i < 374; i++)
@@ -298,30 +285,6 @@ void Combination_Data::debug()
 		}
 		std::cout << '\n';
 	}
-}
-
-bool All_Win(int count, const Te* myhistory, const Te* rivalhistory) {
-	for (int i = 1; i < count; i++)
-	{
-		if ((myhistory[i] - rivalhistory[i] + 3) % 3 != 2)
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
-bool Win4Pre_or(int count, Te* myhistory, Te* rivalhistory) {
-	for (int i = 1; i < count; i++)
-	{
-		if ((myhistory[i - 1] + 2) % 3 != rivalhistory[i] % 3)
-		{
-			return false;
-		}
-	}
-
-	return true;
 }
 
 // Te ‚Í Gu=0, Choki=1, Pa=2 ‚Æ‚¢‚¤’l‚ðŽ‚Â enum Œ^
@@ -333,7 +296,6 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	cmb.Set_data(i, myhistory, rivalhistory);
 	cmb.Update();
 	//cmb.debug();
-	//std::ofstream f("log.txt", std::ios::app);
 	if (cmb.FirstBattle())
 	{
 		return Te(rand() % 3);
@@ -348,6 +310,5 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	}
 
 	//return cmb.LossRate(75) > 0.376 ? Te(rand() % 3) : Te((cmb.Next_probability() + 2) % 3);
-	//return cmb.LossRate(40) > 0.375 ? Te((cmb.Next_probability() + 2) % 3) : Te((cmb.Next_markov() + 2) % 3);
 	return cmb.LossRate(40) > 0.375 ? Te(rand() % 3) : cmb.Win(cmb.Next_markov());
 }
