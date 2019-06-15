@@ -8,3 +8,5 @@ Debug/
 Release/
 /BreadthFirstSearch/BreadthFirstSearch/dist/
 /BreadthFirstSearch/BreadthFirstSearch/build/
+dist/
+build/
