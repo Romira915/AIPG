@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "cstdlib"
 #include <iostream>
+#include <fstream>
 
 #include <cmath>
 
@@ -30,8 +31,8 @@ private:
 	// à¯Ç´ï™ÇØ:0 ïâÇØ:1 èüÇø:2
 	Te WinorLose(Te, Te);
 
-	static const int MAXGAME = 75 - 1;
-	static const int NUMMATCH = 5 - 1;
+	static const int MAXGAME = 75;
+	static const int NUMMATCH = 5;
 
 	int t;
 	Te* myhistory;
@@ -47,22 +48,16 @@ private:
 	int losed_count;
 
 	int count;
-	int allmyhistroy[(MAXGAME + 1) * (NUMMATCH + 1)];
-	int allrivalhistory[(MAXGAME + 1) * (NUMMATCH + 1)];
-	int kaisu;
+	int allmyhistroy[MAXGAME * NUMMATCH];
+	int allrivalhistory[MAXGAME * NUMMATCH];
 };
 
 Combination_Data::Combination_Data()
 {
 	losed_count = 0;
 	count = -1;
-	kaisu = 0;
 
-	for (int i = 0; i < (MAXGAME + 1) * (NUMMATCH + 1); i++)
-	{
-		allmyhistroy[i] = -1;
-		allrivalhistory[i] = -1;
-	}
+	Reset_data();
 }
 
 Combination_Data::~Combination_Data()
@@ -114,7 +109,7 @@ int Combination_Data::Add_data()
 
 void Combination_Data::Reset_data()
 {
-	if (count == 374)
+	if (count == MAXGAME * NUMMATCH - 1)
 	{
 		count = -1;
 		losed_count = 0;
@@ -132,7 +127,7 @@ void Combination_Data::Reset_data()
 				}
 			}
 		}
-		for (int i = 0; i < (MAXGAME + 1) * (NUMMATCH + 1); i++)
+		for (int i = 0; i < MAXGAME * NUMMATCH; i++)
 		{
 			allmyhistroy[i] = -1;
 			allrivalhistory[i] = -1;
@@ -248,7 +243,7 @@ Te Combination_Data::WinorLose(Te my, Te rival)
 
 void Combination_Data::debug()
 {
-	std::cout << "count " << count << "  kaisu " << kaisu << "  t " << t << '\n';
+	std::cout << "count " << count << "  t " << t << '\n';
 }
 
 bool All_Win(int count, const Te* myhistory, const Te* rivalhistory) {
@@ -284,19 +279,21 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	cmb.Set_data(i, myhistory, rivalhistory);
 	cmb.Update();
 	//cmb.debug();
+	//std::ofstream f("log.txt", std::ios::app);
 	if (cmb.FirstBattle())
 	{
 		return Te(rand() % 3);
 	}
-	if (cmb.Only_cpu())
+	/*if (cmb.Only_cpu())
 	{
 		return Te((cmb.LatestHand() + 2) % 3);
-	}
+	}*/
 	if (i >= 2 && Win4Pre_or(i, myhistory, rivalhistory))
 	{
 		return Te((myhistory[i - 1] + 1) % 3);
 	}
 
 	//return cmb.LossRate(75) > 0.376 ? Te(rand() % 3) : Te((cmb.Next_probability() + 2) % 3);
-	return cmb.LossRate(40) > 0.387 ? Te(rand() % 3) : Te((cmb.Next_markov() + 2) % 3);
+	//return cmb.LossRate(40) > 0.375 ? Te((cmb.Next_probability() + 2) % 3) : Te((cmb.Next_markov() + 2) % 3);
+	return cmb.LossRate(40) > 0.375 ? Te(rand() % 3) : Te((cmb.Next_markov() + 2) % 3);
 }
