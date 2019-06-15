@@ -2,8 +2,9 @@
 #include "stdafx.h"
 #include "cstdlib"
 #include <iostream>
-
+#include <fstream>
 #include <cmath>
+#include <string>
 
 class Combination_Data
 {
@@ -13,6 +14,7 @@ public:
 
 	void Update();
 	void Set_data(int, Te*, Te*);
+	void Save_data();
 	Te Next_probability();
 	Te Next_markov();
 	double LossRate(int);
@@ -50,17 +52,34 @@ private:
 	// マルコフ戦略用データ [前の状態][勝敗][次の状態]
 	int markov_history[3][3][3];
 
+	int allmyhistory[MAXGAME * NUMMATCH];
+	int allrivalhistory[MAXGAME * NUMMATCH];
+
 	int losed_count;
 
 	int count;
-	int allmyhistory[MAXGAME * NUMMATCH];
-	int allrivalhistory[MAXGAME * NUMMATCH];
+
+	int savecount;
+	std::string filename;
+	const std::string testr[3] = { "Gu","Choki","Pa" };
+	const std::string winlose[3] = { "引き分け","勝ち","負け" };
 };
 
 Combination_Data::Combination_Data()
 {
 	count = -1;
-
+	savecount = 0;
+	filename = "log\\log.csv";
+	std::ofstream clear(filename);
+	if (!clear)
+	{
+		std::cout << "Can't open " << '"' << filename << '"' << '\n';
+		std::exit(-1);
+	}
+	else
+	{
+		clear.close();
+	}
 	Reset_data();
 }
 
@@ -80,6 +99,36 @@ void Combination_Data::Set_data(int u, Te* my, Te* rival)
 	t = u;
 	myhistory = my;
 	rivalhistory = rival;
+}
+
+void Combination_Data::Save_data()
+{
+	if (count == MAXGAME * NUMMATCH - 1)
+	{
+		std::ofstream f(filename, std::ios::app);
+		f << savecount << "戦目\n";
+		for (int i = 0; i < 3; i++)
+		{
+			f << testr[i] << "\n,";
+			for (int m = 0; m < 3; m++)
+			{
+				f << testr[m] << ',';
+			}
+			f << '\n';
+			for (int j = 0; j < 3; j++)
+			{
+				f << winlose[j] << ',';
+				for (int k = 0; k < 3; k++)
+				{
+					f << markov_history[i][j][k] << ",";
+				}
+				f << '\n';
+			}
+			f << "\n";
+		}
+		f << '\n';
+		savecount++;
+	}
 }
 
 int Combination_Data::Add_data()
@@ -309,6 +358,7 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return cmb.Lose(cmb.MyLatestHand());
 	}
 
+	cmb.Save_data();
 	//return cmb.LossRate(75) > 0.376 ? Te(rand() % 3) : Te((cmb.Next_probability() + 2) % 3);
 	return cmb.LossRate(40) > 0.375 ? Te(rand() % 3) : cmb.Win(cmb.Next_markov());
 }
