@@ -250,7 +250,7 @@ void BFS::Search(const char** filename)
 
 
 int main(int argc, char** argv) {
-	const char* (test[])[2] = {
+	//const char* (test[])[2] = {
 		{"maze8060A.csv", "maze8060A-out.csv" },
 		{"maze8060B.csv", "maze8060B-out.csv" },
 		{"maze8060C.csv", "maze8060C-out.csv" },
