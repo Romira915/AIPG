@@ -19,17 +19,23 @@ public:
 	double LossRate(int);
 
 	bool FirstBattle();
-	bool Only_cpu();
-	Te LatestHand();
+	bool IsOnlyCpu();
+	bool IsWin4Pre();
+	Te MyLatestHand();
+	Te RivalLatestHand();
+	Te Win(Te);
+	Te Lose(Te);
+	// ˆø‚«•ª‚¯:0 •‰‚¯:1 Ÿ‚¿:2
+	Te WinorLose(Te, Te);
 
 	void debug();
+
+	bool IsWin4PreFlag;
 
 private:
 	int Add_data();
 	void Reset_data();
 	int Losing_counter();
-	// ˆø‚«•ª‚¯:0 •‰‚¯:1 Ÿ‚¿:2
-	Te WinorLose(Te, Te);
 
 	static const int MAXGAME = 75;
 	static const int NUMMATCH = 5;
@@ -48,13 +54,12 @@ private:
 	int losed_count;
 
 	int count;
-	int allmyhistroy[MAXGAME * NUMMATCH];
+	int allmyhistory[MAXGAME * NUMMATCH];
 	int allrivalhistory[MAXGAME * NUMMATCH];
 };
 
 Combination_Data::Combination_Data()
 {
-	losed_count = 0;
 	count = -1;
 
 	Reset_data();
@@ -83,7 +88,7 @@ int Combination_Data::Add_data()
 	count++;
 	if (t >= 1)
 	{
-		allmyhistroy[count - 1] = myhistory[t - 1];
+		allmyhistory[count - 1] = myhistory[t - 1];
 		allrivalhistory[count - 1] = rivalhistory[t - 1];
 	}
 	if (t >= 2)
@@ -112,7 +117,6 @@ void Combination_Data::Reset_data()
 	if (count == MAXGAME * NUMMATCH - 1)
 	{
 		count = -1;
-		losed_count = 0;
 	}
 	if (count == -1)
 	{
@@ -129,9 +133,12 @@ void Combination_Data::Reset_data()
 		}
 		for (int i = 0; i < MAXGAME * NUMMATCH; i++)
 		{
-			allmyhistroy[i] = -1;
+			allmyhistory[i] = -1;
 			allrivalhistory[i] = -1;
 		}
+
+		losed_count = 0;
+		IsWin4PreFlag = false;
 	}
 }
 
@@ -169,8 +176,8 @@ Te Combination_Data::Next_markov()
 	{
 		if (count != 0 && t == 0)
 		{
-			if (markov_probability[allrivalhistory[count - 1]][WinorLose(Te(allmyhistroy[count - 1]), Te(allrivalhistory[count - 1]))][i] >= max) {
-				max = markov_probability[allrivalhistory[count - 1]][WinorLose(Te(allmyhistroy[count - 1]), Te(allrivalhistory[count - 1]))][i];
+			if (markov_probability[allrivalhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i] >= max) {
+				max = markov_probability[allrivalhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i];
 				next = Te(i);
 			}
 		}
@@ -197,13 +204,13 @@ bool Combination_Data::FirstBattle()
 	return count == 0;
 }
 
-bool Combination_Data::Only_cpu()
+bool Combination_Data::IsOnlyCpu()
 {
-	if (count >= 1)
+	if (count >= 2)
 	{
 		for (int i = 1; i < count; i++)
 		{
-			if (allrivalhistory[i] != -1 || allrivalhistory[i-1] != -1)
+			if (allrivalhistory[i] != -1 && allrivalhistory[i - 1] != -1)
 			{
 				if (allrivalhistory[i] != allrivalhistory[i - 1]) {
 					return false;
@@ -214,7 +221,35 @@ bool Combination_Data::Only_cpu()
 	return true;
 }
 
-Te Combination_Data::LatestHand()
+bool Combination_Data::IsWin4Pre()
+{
+	if (count >= 2 && t >= 2)
+	{
+		for (int i = 1; i < count; i++)
+		{
+			if (WinorLose(Te(myhistory[i - 1]), Te(rivalhistory[i])) != Te(1))
+			{
+				IsWin4PreFlag = false;
+				return false;
+			}
+		}
+	}
+
+	IsWin4PreFlag = true;
+	return true;
+}
+
+Te Combination_Data::MyLatestHand()
+{
+	for (int i = count - 1; i >= 0; i--)
+	{
+		if (allmyhistory[i] != -1) {
+			return Te(allmyhistory[i]);
+		}
+	}
+}
+
+Te Combination_Data::RivalLatestHand()
 {
 	for (int i = count - 1; i >= 0; i--)
 	{
@@ -222,6 +257,16 @@ Te Combination_Data::LatestHand()
 			return Te(allrivalhistory[i]);
 		}
 	}
+}
+
+Te Combination_Data::Win(Te te)
+{
+	return Te((te + 2) % 3);
+}
+
+Te Combination_Data::Lose(Te te)
+{
+	return Te((te + 1) % 3);
 }
 
 int Combination_Data::Losing_counter()
@@ -236,6 +281,7 @@ int Combination_Data::Losing_counter()
 	return losed_count;
 }
 
+// ˆø‚«•ª‚¯:0 •‰‚¯:1 Ÿ‚¿:2
 Te Combination_Data::WinorLose(Te my, Te rival)
 {
 	return Te((my - rival + 3) % 3);
@@ -243,7 +289,15 @@ Te Combination_Data::WinorLose(Te my, Te rival)
 
 void Combination_Data::debug()
 {
-	std::cout << "count " << count << "  t " << t << '\n';
+	//std::cout << "count " << count << "  t " << t << '\n';
+	if (count == 374)
+	{
+		for (int i = 0; i < 374; i++)
+		{
+			std::cout << allrivalhistory[i] << ' ';
+		}
+		std::cout << '\n';
+	}
 }
 
 bool All_Win(int count, const Te* myhistory, const Te* rivalhistory) {
@@ -284,16 +338,16 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	{
 		return Te(rand() % 3);
 	}
-	/*if (cmb.Only_cpu())
+	if (cmb.IsOnlyCpu() && cmb.IsWin4PreFlag == false)
 	{
-		return Te((cmb.LatestHand() + 2) % 3);
-	}*/
-	if (i >= 2 && Win4Pre_or(i, myhistory, rivalhistory))
+		return cmb.Win(cmb.RivalLatestHand());
+	}
+	if (cmb.IsWin4Pre())
 	{
-		return Te((myhistory[i - 1] + 1) % 3);
+		return cmb.Lose(cmb.MyLatestHand());
 	}
 
 	//return cmb.LossRate(75) > 0.376 ? Te(rand() % 3) : Te((cmb.Next_probability() + 2) % 3);
 	//return cmb.LossRate(40) > 0.375 ? Te((cmb.Next_probability() + 2) % 3) : Te((cmb.Next_markov() + 2) % 3);
-	return cmb.LossRate(40) > 0.375 ? Te(rand() % 3) : Te((cmb.Next_markov() + 2) % 3);
+	return cmb.LossRate(40) > 0.375 ? Te(rand() % 3) : cmb.Win(cmb.Next_markov());
 }
