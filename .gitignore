@@ -8,5 +8,9 @@ Debug/
 Release/
 /BreadthFirstSearch/BreadthFirstSearch/dist/
 /BreadthFirstSearch/BreadthFirstSearch/build/
-dist/
-build/
+dist
+build
+jresult.csv
+jresult-detail.csv
+jresult-original.xlsx
+log.csv
