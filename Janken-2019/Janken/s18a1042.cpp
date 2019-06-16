@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cmath>
 #include <string>
+#include <random>
 
 class Combination_Data
 {
@@ -28,6 +29,7 @@ public:
 	Te Lose(Te);
 	// ˆø‚«•ª‚¯:0 •‰‚¯:1 Ÿ‚¿:2
 	Te WinorLose(Te, Te);
+	int rnd();
 
 	void debug();
 
@@ -60,31 +62,33 @@ private:
 	int count;
 
 	int savecount;
+	std::ofstream logf;
 	std::string filename;
 	const std::string testr[3] = { "Gu","Choki","Pa" };
 	const std::string winlose[3] = { "ˆø‚«•ª‚¯","Ÿ‚¿","•‰‚¯" };
+
+	std::random_device r;
+	std::uniform_int_distribution<> rand3;
 };
 
-Combination_Data::Combination_Data()
+Combination_Data::Combination_Data() : rand3(0, 2)
 {
 	count = -1;
 	savecount = 0;
 	filename = "log\\log.csv";
-	std::ofstream clear(filename);
-	if (!clear)
+	logf.open(filename);
+	if (!logf)
 	{
 		std::cout << "Can't open " << '"' << filename << '"' << '\n';
 		std::exit(-1);
 	}
-	else
-	{
-		clear.close();
-	}
+
 	Reset_data();
 }
 
 Combination_Data::~Combination_Data()
 {
+	logf.close();
 }
 
 void Combination_Data::Update()
@@ -105,28 +109,32 @@ void Combination_Data::Save_data()
 {
 	if (count == MAXGAME * NUMMATCH - 1)
 	{
-		std::ofstream f(filename, std::ios::app);
-		f << savecount << "í–Ú\n";
-		for (int i = 0; i < 3; i++)
+		if (savecount > 146)
 		{
-			f << testr[i] << "\n,";
-			for (int m = 0; m < 3; m++)
+
+			logf << savecount - 146 << "í–Ú\n";
+			std::cout << "ª " << savecount - 146 << "í–Ú\n";
+			for (int i = 0; i < 3; i++)
 			{
-				f << testr[m] << ',';
-			}
-			f << '\n';
-			for (int j = 0; j < 3; j++)
-			{
-				f << winlose[j] << ',';
-				for (int k = 0; k < 3; k++)
+				logf << testr[i] << "\n,";
+				for (int m = 0; m < 3; m++)
 				{
-					f << markov_history[i][j][k] << ",";
+					logf << testr[m] << ',';
 				}
-				f << '\n';
+				logf << '\n';
+				for (int j = 0; j < 3; j++)
+				{
+					logf << winlose[j] << ',';
+					for (int k = 0; k < 3; k++)
+					{
+						logf << markov_history[i][j][k] << ",";
+					}
+					logf << '\n';
+				}
+				logf << "\n";
 			}
-			f << "\n";
+			logf << '\n';
 		}
-		f << '\n';
 		savecount++;
 	}
 }
@@ -324,6 +332,11 @@ Te Combination_Data::WinorLose(Te my, Te rival)
 	return Te((my - rival + 3) % 3);
 }
 
+int Combination_Data::rnd()
+{
+	return rand3(r);
+}
+
 void Combination_Data::debug()
 {
 	if (count == 374)
@@ -345,9 +358,10 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	cmb.Set_data(i, myhistory, rivalhistory);
 	cmb.Update();
 	//cmb.debug();
+	cmb.Save_data();
 	if (cmb.FirstBattle())
 	{
-		return Te(rand() % 3);
+		return Te(cmb.rnd());
 	}
 	if (cmb.IsOnlyCpu() && cmb.IsWin4PreFlag == false)
 	{
@@ -358,7 +372,6 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return cmb.Lose(cmb.MyLatestHand());
 	}
 
-	cmb.Save_data();
 	//return cmb.LossRate(75) > 0.376 ? Te(rand() % 3) : Te((cmb.Next_probability() + 2) % 3);
-	return cmb.LossRate(40) > 0.375 ? Te(rand() % 3) : cmb.Win(cmb.Next_markov());
+	return cmb.LossRate(40) > 0.375 ? Te(cmb.rnd()) : cmb.Win(cmb.Next_markov());
 }
