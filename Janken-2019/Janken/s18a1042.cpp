@@ -7,6 +7,9 @@
 #include <string>
 #include <random>
 
+extern int MAXKAISU;
+extern int NUMMATCH;
+
 class Combination_Data
 {
 public:
@@ -40,8 +43,8 @@ private:
 	void Reset_data();
 	int Losing_counter();
 
-	static const int MAXGAME = 75;
-	static const int NUMMATCH = 5;
+	const int MAXKAISU_intern;
+	const int NUMMATCH_intern;
 
 	int t;
 	Te* myhistory;
@@ -54,8 +57,8 @@ private:
 	// マルコフ戦略用データ [前の状態][勝敗][次の状態]
 	int markov_history[3][3][3];
 
-	int allmyhistory[MAXGAME * NUMMATCH];
-	int allrivalhistory[MAXGAME * NUMMATCH];
+	int *allmyhistory;
+	int *allrivalhistory;
 
 	int losed_count;
 
@@ -71,10 +74,14 @@ private:
 	std::uniform_int_distribution<> rand3;
 };
 
-Combination_Data::Combination_Data() : rand3(0, 2)
+Combination_Data::Combination_Data() : rand3(0, 2), MAXKAISU_intern(MAXKAISU), NUMMATCH_intern(NUMMATCH)
 {
 	count = -1;
 	savecount = 0;
+
+	allmyhistory = new int[MAXKAISU_intern * NUMMATCH_intern];
+	allrivalhistory = new int[MAXKAISU_intern * NUMMATCH_intern];
+
 	filename = "log\\log.csv";
 	logf.open(filename);
 	if (!logf)
@@ -89,6 +96,9 @@ Combination_Data::Combination_Data() : rand3(0, 2)
 Combination_Data::~Combination_Data()
 {
 	logf.close();
+
+	delete[] allmyhistory;
+	delete[]  allrivalhistory;
 }
 
 void Combination_Data::Update()
@@ -107,7 +117,7 @@ void Combination_Data::Set_data(int u, Te* my, Te* rival)
 
 void Combination_Data::Save_data()
 {
-	if (count == MAXGAME * NUMMATCH - 1)
+	if (count == MAXKAISU_intern * NUMMATCH_intern - 1)
 	{
 		if (savecount > 146)
 		{
@@ -159,7 +169,7 @@ int Combination_Data::Add_data()
 
 void Combination_Data::Reset_data()
 {
-	if (count == MAXGAME * NUMMATCH - 1)
+	if (count == MAXKAISU_intern * NUMMATCH_intern - 1)
 	{
 		count = -1;
 	}
@@ -176,7 +186,7 @@ void Combination_Data::Reset_data()
 				}
 			}
 		}
-		for (int i = 0; i < MAXGAME * NUMMATCH; i++)
+		for (int i = 0; i < MAXKAISU_intern * NUMMATCH_intern; i++)
 		{
 			allmyhistory[i] = -1;
 			allrivalhistory[i] = -1;
