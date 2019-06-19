@@ -22,6 +22,9 @@ public:
 	Te Next_probability();
 	Te Next_markov();
 	Te Next_mymarkov();
+
+	Te Judg_markov();
+
 	double WinRate(int);
 	double LossRate(int);
 
@@ -45,6 +48,8 @@ private:
 	void Init_data();
 	int winning_counter();
 	int Losing_counter();
+	int markov_counter();
+
 
 	const int MAXKAISU_intern;
 	const int NUMMATCH_intern;
@@ -61,11 +66,15 @@ private:
 	int markov_history[3][3][3];
 	int markov_myhistory[3][3][3];
 
-	int *allmyhistory;
-	int *allrivalhistory;
+	int* allmyhistory;
+	int* allrivalhistory;
 
 	int won_count;
 	int losed_count;
+	int markov_count;
+	int mymarkov_count;
+	Te markov_prediction;
+	Te mymarkov_prediction;
 
 	int count;
 
@@ -79,7 +88,7 @@ private:
 	std::uniform_int_distribution<> rand3;
 };
 
-Combination_Data::Combination_Data() : rand3(0, 2), MAXKAISU_intern(MAXKAISU), NUMMATCH_intern(NUMMATCH)
+Combination_Data::Combination_Data() : rand3(0, 2), MAXKAISU_intern(MAXKAISU), NUMMATCH_intern(NUMMATCH), markov_prediction(Te(0)), mymarkov_prediction(Te(0))
 {
 	count = -1;
 	savecount = 0;
@@ -112,6 +121,7 @@ void Combination_Data::Update()
 	Add_data();
 	winning_counter();
 	Losing_counter();
+	markov_counter();
 }
 
 void Combination_Data::Set_data(int u, Te* my, Te* rival)
@@ -202,6 +212,8 @@ void Combination_Data::Init_data()
 
 		won_count = 0;
 		losed_count = 0;
+		markov_count = 0;
+		mymarkov_count = 0;
 		IsWin4PreFlag = false;
 	}
 }
@@ -298,6 +310,61 @@ Te Combination_Data::Next_mymarkov()
 	}
 
 	return next;
+}
+
+Te Combination_Data::Judg_markov()
+{
+	if (markov_count >= mymarkov_count)
+	{
+		return Win(Next_markov());
+	}
+	else
+	{
+		return Lose(Next_mymarkov());
+	}
+
+	/*int markov_counter = 0, mymarkov_counter = 0;
+	Te next_rival, next_my;
+
+	for (int i = 1; i < count; i++)
+	{
+		if (allmyhistory[i - 1] != -1 && allmyhistory[i] != -1 && allrivalhistory[i - 1] != -1 && allrivalhistory[i] != -1)
+		{
+			int max = 0, mymax = 0;;
+			for (int j = 0; j < 3; j++)
+			{
+				if (markov_history[allrivalhistory[i - 1]][WinorLose(Te(allmyhistory[i - 1]), Te(allrivalhistory[i - 1]))][j] >= max) {
+					max = markov_history[allrivalhistory[i - 1]][WinorLose(Te(allmyhistory[i - 1]), Te(allrivalhistory[i - 1]))][j];
+					next_rival = Te(j);
+				}
+
+				if (markov_myhistory[allmyhistory[i - 1]][WinorLose(Te(allmyhistory[i - 1]), Te(allrivalhistory[i - 1]))][j] >= mymax) {
+					mymax = markov_myhistory[allmyhistory[i - 1]][WinorLose(Te(allmyhistory[i - 1]), Te(allrivalhistory[i - 1]))][j];
+					next_my = Te(j);
+				}
+			}
+
+			if (next_rival == Te(allrivalhistory[i]))
+			{
+				markov_counter++;
+			}
+
+			if (next_my == Te(allmyhistory[i]))
+			{
+				mymarkov_counter++;
+			}
+		}
+	}
+
+
+	if (markov_counter >= mymarkov_counter)
+	{
+		return Win(Next_markov());
+	}
+	else
+	{
+		return Lose(Next_mymarkov());
+	}*/
 }
 
 double Combination_Data::WinRate(int start)
@@ -400,6 +467,26 @@ int Combination_Data::Losing_counter()
 	return losed_count;
 }
 
+int Combination_Data::markov_counter()
+{
+	if (count >= 1)
+	{
+		if (markov_prediction == Te(allrivalhistory[count - 1]))
+		{
+			markov_count++;
+		}
+		if (mymarkov_prediction == Te(allrivalhistory[count - 1]))
+		{
+			mymarkov_count++;
+		}
+
+		markov_prediction = Next_markov();
+		mymarkov_prediction = Win(Next_mymarkov());
+	}
+
+	return 0;
+}
+
 // ˆø‚«•ª‚¯:0 •‰‚¯:1 Ÿ‚¿:2
 int Combination_Data::WinorLose(Te my, Te rival)
 {
@@ -446,8 +533,9 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return cmb.Lose(cmb.MyLatestHand());
 	}
 
-	return cmb.WinRate(40) > 0 ? cmb.Win(cmb.Next_markov()) : cmb.Lose(cmb.Next_mymarkov());
+	return cmb.Judg_markov();
+	//return cmb.WinRate(40) > 0 ? cmb.Win(cmb.Next_markov()) : cmb.Lose(cmb.Next_mymarkov());
 	//return cmb.LossRate(75) > 0.376 ? Te(rand() % 3) : Te((cmb.Next_probability() + 2) % 3);
-	return cmb.LossRate(40) > 0.375 ? cmb.rnd() : cmb.Win(cmb.Next_markov());
-	return cmb.LossRate(40) > 0.375 ? cmb.rnd() : cmb.Lose(cmb.Next_mymarkov());
+	//return cmb.LossRate(40) > 0.375 ? cmb.rnd() : cmb.Win(cmb.Next_markov());
+	//return cmb.LossRate(40) > 0.375 ? cmb.rnd() : cmb.Lose(cmb.Next_mymarkov());
 }
