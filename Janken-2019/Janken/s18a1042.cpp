@@ -21,6 +21,8 @@ public:
 	void Save_data();
 	Te Next_probability();
 	Te Next_markov();
+	Te Next_mymarkov();
+	double WinRate(int);
 	double LossRate(int);
 
 	bool FirstBattle();
@@ -31,8 +33,8 @@ public:
 	Te Win(Te);
 	Te Lose(Te);
 	// 引き分け:0 負け:1 勝ち:2
-	Te WinorLose(Te, Te);
-	int rnd();
+	int WinorLose(Te, Te);
+	Te rnd();
 
 	void debug();
 
@@ -40,7 +42,8 @@ public:
 
 private:
 	int Add_data();
-	void Reset_data();
+	void Init_data();
+	int winning_counter();
 	int Losing_counter();
 
 	const int MAXKAISU_intern;
@@ -56,10 +59,12 @@ private:
 	int mycomb_history[3][3];
 	// マルコフ戦略用データ [前の状態][勝敗][次の状態]
 	int markov_history[3][3][3];
+	int markov_myhistory[3][3][3];
 
 	int *allmyhistory;
 	int *allrivalhistory;
 
+	int won_count;
 	int losed_count;
 
 	int count;
@@ -90,7 +95,7 @@ Combination_Data::Combination_Data() : rand3(0, 2), MAXKAISU_intern(MAXKAISU), N
 		std::exit(-1);
 	}
 
-	Reset_data();
+	Init_data();
 }
 
 Combination_Data::~Combination_Data()
@@ -103,8 +108,9 @@ Combination_Data::~Combination_Data()
 
 void Combination_Data::Update()
 {
-	Reset_data();
+	Init_data();
 	Add_data();
+	winning_counter();
 	Losing_counter();
 }
 
@@ -162,12 +168,13 @@ int Combination_Data::Add_data()
 		rivalcomb_history[rivalhistory[t - 2]][rivalhistory[t - 1]]++;
 		mycomb_history[myhistory[t - 2]][rivalhistory[t - 1]]++;
 		markov_history[rivalhistory[t - 2]][WinorLose(myhistory[t - 2], rivalhistory[t - 2])][rivalhistory[t - 1]]++;
+		markov_myhistory[myhistory[t - 2]][WinorLose(myhistory[t - 2], rivalhistory[t - 2])][myhistory[t - 1]]++;
 	}
 
 	return 0;
 }
 
-void Combination_Data::Reset_data()
+void Combination_Data::Init_data()
 {
 	if (count == MAXKAISU_intern * NUMMATCH_intern - 1)
 	{
@@ -183,6 +190,7 @@ void Combination_Data::Reset_data()
 				for (int k = 0; k < 3; k++)
 				{
 					markov_history[i][j][k] = 0;
+					markov_myhistory[i][j][k] = 0;
 				}
 			}
 		}
@@ -192,9 +200,22 @@ void Combination_Data::Reset_data()
 			allrivalhistory[i] = -1;
 		}
 
+		won_count = 0;
 		losed_count = 0;
 		IsWin4PreFlag = false;
 	}
+}
+
+int Combination_Data::winning_counter()
+{
+	if (t >= 1)
+	{
+		if (WinorLose(myhistory[t - 1], rivalhistory[t - 1]) == 2)
+		{
+			won_count++;
+		}
+	}
+	return won_count;
 }
 
 Te Combination_Data::Next_probability()
@@ -245,6 +266,49 @@ Te Combination_Data::Next_markov()
 	return next;
 }
 
+Te Combination_Data::Next_mymarkov()
+{
+	double markov_probability[3][3][3] = { 0 };
+	double max = 0;
+	Te next;
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			for (int k = 0; k < 3; k++)
+			{
+				markov_probability[i][j][k] = double(markov_myhistory[i][j][k]) / (count + 1);
+			}
+		}
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		if (count != 0 && t == 0)
+		{
+			if (markov_probability[allmyhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i] >= max) {
+				max = markov_probability[allmyhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i];
+				next = Te(i);
+			}
+		}
+		else if (markov_probability[myhistory[t - 1]][WinorLose(myhistory[t - 1], rivalhistory[t - 1])][i] >= max) {
+			max = markov_probability[myhistory[t - 1]][WinorLose(myhistory[t - 1], rivalhistory[t - 1])][i];
+			next = Te(i);
+		}
+	}
+
+	return next;
+}
+
+double Combination_Data::WinRate(int start)
+{
+	if (count >= start)
+	{
+		return (double)won_count / (count + 1);
+	}
+	return 1;
+}
+
 double Combination_Data::LossRate(int start)
 {
 	if (count >= start)
@@ -282,7 +346,7 @@ bool Combination_Data::IsWin4Pre()
 	{
 		for (int i = 1; i < count; i++)
 		{
-			if (WinorLose(Te(myhistory[i - 1]), Te(rivalhistory[i])) != Te(1))
+			if (WinorLose(Te(myhistory[i - 1]), Te(rivalhistory[i])) != 1)
 			{
 				IsWin4PreFlag = false;
 				return false;
@@ -337,14 +401,14 @@ int Combination_Data::Losing_counter()
 }
 
 // 引き分け:0 負け:1 勝ち:2
-Te Combination_Data::WinorLose(Te my, Te rival)
+int Combination_Data::WinorLose(Te my, Te rival)
 {
-	return Te((my - rival + 3) % 3);
+	return (my - rival + 3) % 3;
 }
 
-int Combination_Data::rnd()
+Te Combination_Data::rnd()
 {
-	return rand3(r);
+	return Te(rand3(r));
 }
 
 void Combination_Data::debug()
@@ -382,6 +446,8 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return cmb.Lose(cmb.MyLatestHand());
 	}
 
+	return cmb.WinRate(40) > 0 ? cmb.Win(cmb.Next_markov()) : cmb.Lose(cmb.Next_mymarkov());
 	//return cmb.LossRate(75) > 0.376 ? Te(rand() % 3) : Te((cmb.Next_probability() + 2) % 3);
-	return cmb.LossRate(40) > 0.375 ? Te(cmb.rnd()) : cmb.Win(cmb.Next_markov());
+	return cmb.LossRate(40) > 0.375 ? cmb.rnd() : cmb.Win(cmb.Next_markov());
+	return cmb.LossRate(40) > 0.375 ? cmb.rnd() : cmb.Lose(cmb.Next_mymarkov());
 }
