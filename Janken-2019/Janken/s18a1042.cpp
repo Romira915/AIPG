@@ -339,14 +339,14 @@ int Combination_Data::rnd()
 
 void Combination_Data::debug()
 {
-	if (count == 374)
-	{
-		for (int i = 0; i < 374; i++)
-		{
-			std::cout << allrivalhistory[i] << ' ';
-		}
-		std::cout << '\n';
-	}
+	//if (count == 374)
+	//{
+	//	for (int i = 0; i < 374; i++)
+	//	{
+	//		std::cout << allrivalhistory[i] << ' ';
+	//	}
+	//	std::cout << '\n';
+	//}
 }
 
 // Te ‚Í Gu=0, Choki=1, Pa=2 ‚Æ‚¢‚¤’l‚ðŽ‚Â enum Œ^
