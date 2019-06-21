@@ -510,5 +510,7 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 		return cmb.Lose(cmb.MyLatestHand());
 	}
 
-	return cmb.Judg_markov();
+	//return cmb.Judg_markov();
+	//return cmb.Win(cmb.Next_markov());
+	return cmb.Lose(cmb.Next_mymarkov());
 }
