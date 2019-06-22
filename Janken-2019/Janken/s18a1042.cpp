@@ -193,31 +193,20 @@ Te Combination_Data::Next_probability()
 // マルコフ戦略による予測アルゴリズム 戻り値 相手の次の手の予測
 Te Combination_Data::Next_markov()
 {
-	double markov_probability[3][3][3] = { 0 };
-	double max = 0;
+	int max = 0;
 	Te next;
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			for (int k = 0; k < 3; k++)
-			{
-				markov_probability[i][j][k] = double(markov_history[i][j][k]) / (count + 1);
-			}
-		}
-	}
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (count != 0 && t == 0)
+		if (count >= 1 && t == 0)
 		{
-			if (markov_probability[allrivalhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i] >= max) {
-				max = markov_probability[allrivalhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i];
+			if (markov_history[allrivalhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i] >= max) {
+				max = markov_history[allrivalhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i];
 				next = Te(i);
 			}
 		}
-		else if (markov_probability[rivalhistory[t - 1]][WinorLose(myhistory[t - 1], rivalhistory[t - 1])][i] >= max) {
-			max = markov_probability[rivalhistory[t - 1]][WinorLose(myhistory[t - 1], rivalhistory[t - 1])][i];
+		else if (markov_history[rivalhistory[t - 1]][WinorLose(myhistory[t - 1], rivalhistory[t - 1])][i] >= max) {
+			max = markov_history[rivalhistory[t - 1]][WinorLose(myhistory[t - 1], rivalhistory[t - 1])][i];
 			next = Te(i);
 		}
 	}
@@ -228,31 +217,20 @@ Te Combination_Data::Next_markov()
 // マルコフ戦略を自分に対して予測 自分の次の手の予測
 Te Combination_Data::Next_mymarkov()
 {
-	double markov_probability[3][3][3] = { 0 };
-	double max = 0;
+	int max = 0;
 	Te next;
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			for (int k = 0; k < 3; k++)
-			{
-				markov_probability[i][j][k] = double(markov_myhistory[i][j][k]) / (count + 1);
-			}
-		}
-	}
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (count != 0 && t == 0)
+		if (count >= 1 && t == 0)
 		{
-			if (markov_probability[allmyhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i] >= max) {
-				max = markov_probability[allmyhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i];
+			if (markov_myhistory[allmyhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i] >= max) {
+				max = markov_myhistory[allmyhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i];
 				next = Te(i);
 			}
 		}
-		else if (markov_probability[myhistory[t - 1]][WinorLose(myhistory[t - 1], rivalhistory[t - 1])][i] >= max) {
-			max = markov_probability[myhistory[t - 1]][WinorLose(myhistory[t - 1], rivalhistory[t - 1])][i];
+		else if (markov_myhistory[myhistory[t - 1]][WinorLose(myhistory[t - 1], rivalhistory[t - 1])][i] >= max) {
+			max = markov_myhistory[myhistory[t - 1]][WinorLose(myhistory[t - 1], rivalhistory[t - 1])][i];
 			next = Te(i);
 		}
 	}
@@ -267,7 +245,7 @@ Te Combination_Data::Next_markov2()
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (count != 0 && t == 0)
+		if (count >= 2 && t <= 1)
 		{
 			if (markov_history2[allrivalhistory[count - 2]][WinorLose(Te(allmyhistory[count - 2]), Te(allrivalhistory[count - 2]))][allrivalhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i] >= max)
 			{
@@ -286,24 +264,46 @@ Te Combination_Data::Next_markov2()
 
 Te Combination_Data::Next_markov3()
 {
-	int max = 0;
+	int max = -1;
 	Te next;
+	int subscript[6];
+
+	for (int i = count - 1, j = 0; i >= 0 && j < 6; i--)
+	{
+		if (allrivalhistory[i] != -1 && allmyhistory[i] != -1)
+		{
+			subscript[j] = WinorLose(Te(allmyhistory[i]), Te(allrivalhistory[i]));
+			subscript[j + 1] = allrivalhistory[i];
+			j += 2;
+		}
+	}
+
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (count != 0 && t == 0)
+		if (count >= 3)
 		{
-			if (markov_history3[allrivalhistory[count - 3]][WinorLose(Te(allmyhistory[count - 3]), Te(allrivalhistory[count - 3]))][allrivalhistory[count - 2]][WinorLose(Te(allmyhistory[count - 2]), Te(allrivalhistory[count - 2]))][allrivalhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i] >= max)
+			if (markov_history3[subscript[5]][subscript[4]][subscript[3]][subscript[2]][subscript[1]][subscript[0]][i] >= max)
+			{
+				max = markov_history3[subscript[5]][subscript[4]][subscript[3]][subscript[2]][subscript[1]][subscript[0]][i];
+				next = Te(i);
+			}
+			
+			/*if (markov_history3[allrivalhistory[count - 3]][WinorLose(Te(allmyhistory[count - 3]), Te(allrivalhistory[count - 3]))][allrivalhistory[count - 2]][WinorLose(Te(allmyhistory[count - 2]), Te(allrivalhistory[count - 2]))][allrivalhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i] >= max)
 			{
 				max = markov_history3[allrivalhistory[count - 3]][WinorLose(Te(allmyhistory[count - 3]), Te(allrivalhistory[count - 3]))][allrivalhistory[count - 2]][WinorLose(Te(allmyhistory[count - 2]), Te(allrivalhistory[count - 2]))][allrivalhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i];
 				next = Te(i);
-			}
+			}*/
 		}
-		else if (markov_history3[rivalhistory[t - 3]][WinorLose(Te(myhistory[t - 3]), Te(rivalhistory[t - 3]))][rivalhistory[t - 2]][WinorLose(Te(myhistory[t - 2]), Te(rivalhistory[t - 2]))][rivalhistory[t - 1]][WinorLose(Te(myhistory[t - 1]), Te(rivalhistory[t - 1]))][i] >= max)
+		else
+		{
+			next = rnd();
+		}
+		/*else if (markov_history3[rivalhistory[t - 3]][WinorLose(Te(myhistory[t - 3]), Te(rivalhistory[t - 3]))][rivalhistory[t - 2]][WinorLose(Te(myhistory[t - 2]), Te(rivalhistory[t - 2]))][rivalhistory[t - 1]][WinorLose(Te(myhistory[t - 1]), Te(rivalhistory[t - 1]))][i] >= max)
 		{
 			max = markov_history3[rivalhistory[t - 3]][WinorLose(Te(myhistory[t - 3]), Te(rivalhistory[t - 3]))][rivalhistory[t - 2]][WinorLose(Te(myhistory[t - 2]), Te(rivalhistory[t - 2]))][rivalhistory[t - 1]][WinorLose(Te(myhistory[t - 1]), Te(rivalhistory[t - 1]))][i];
 			next = Te(i);
-		}
+		}*/
 	}
 	return next;
 }
@@ -315,7 +315,7 @@ Te Combination_Data::Next_markov4()
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (count != 0 && t == 0)
+		if (count <= 4 && t <= 3)
 		{
 			if (markov_history4[allrivalhistory[count - 4]][WinorLose(Te(allmyhistory[count - 4]), Te(allrivalhistory[count - 4]))][allrivalhistory[count - 3]][WinorLose(Te(allmyhistory[count - 3]), Te(allrivalhistory[count - 3]))][allrivalhistory[count - 2]][WinorLose(Te(allmyhistory[count - 2]), Te(allrivalhistory[count - 2]))][allrivalhistory[count - 1]][WinorLose(Te(allmyhistory[count - 1]), Te(allrivalhistory[count - 1]))][i] >= max)
 			{
@@ -395,7 +395,7 @@ bool Combination_Data::IsWin4Pre()
 {
 	if (count >= 2 && t >= 2)
 	{
-		for (int i = 1; i < count; i++)
+		for (int i = 1; i < t; i++)
 		{
 			if (WinorLose(Te(myhistory[i - 1]), Te(rivalhistory[i])) != 1)
 			{
@@ -629,10 +629,10 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	}*/
 	if (i >= 3)
 	{
-		//return cmb.Win(cmb.Next_markov3());
 	}
+	return cmb.Win(cmb.Next_markov3());
+	return cmb.Judg_markov();
 	return cmb.Win(cmb.Next_markov2());
-	//return cmb.Judg_markov();
 	//return cmb.Win(cmb.Next_markov());
 	return cmb.Lose(cmb.Next_mymarkov());
 }
