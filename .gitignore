@@ -13,4 +13,4 @@ build/
 jresult.csv
 jresult-detail.csv
 jresult-original.xlsx
-log.csv
+log/
