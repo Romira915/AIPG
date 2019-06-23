@@ -20,6 +20,7 @@ public:
 	void Update();
 	void Set_data(int, Te*, Te*);
 	void Save_data();
+	void Set_Mgradient(int m1 = 10, int mym = 10, int m2 = 10, int m3 = 10, int m4 = 10, int prem = 10);
 
 	Te Next_probability();
 	Te Next_markov();
@@ -106,6 +107,8 @@ private:
 	Te markov_prediction4;
 	Te preM_prediction[NUMPREDATA];
 
+	int markov_gradient[6];
+
 	int count;
 
 	int savecount;
@@ -154,6 +157,7 @@ Combination_Data::Combination_Data() : rand3(0, 2), MAXKAISU_intern(MAXKAISU), N
 
 	Init_data();
 	Set_premarkov();
+	Set_Mgradient();
 }
 
 Combination_Data::~Combination_Data()
@@ -257,6 +261,16 @@ void Combination_Data::Save_data()
 		savecount++;
 	}
 
+}
+
+void Combination_Data::Set_Mgradient(int m1, int mym, int m2, int m3, int m4, int prem)
+{
+	markov_gradient[0] = m1;
+	markov_gradient[1] = mym;
+	markov_gradient[2] = m2;
+	markov_gradient[3] = m3;
+	markov_gradient[4] = m4;
+	markov_gradient[5] = prem;
 }
 
 // ŠÈ’P‚È—\‘ªƒAƒ‹ƒSƒŠƒYƒ€ –ß‚è’l ‘ŠŽè‚ÌŽŸ‚ÌŽè‚Ì—\‘ª
@@ -988,29 +1002,29 @@ int Combination_Data::markov_counter()
 	{
 		if (markov_prediction == Te(allrivalhistory[count - 1]))
 		{
-			markov_accuracy++;
+			markov_accuracy += markov_gradient[0];
 		}
 		if (mymarkov_prediction == Te(allrivalhistory[count - 1]))
 		{
-			mymarkov_accuracy++;
+			mymarkov_accuracy += markov_gradient[1];
 		}
 		if (markov_prediction2 == Te(allrivalhistory[count - 1]))
 		{
-			markov_accuracy2++;
+			markov_accuracy2 += markov_gradient[2];
 		}
 		if (markov_prediction3 == Te(allrivalhistory[count - 1]))
 		{
-			markov_accuracy3++;
+			markov_accuracy3 += markov_gradient[3];
 		}
 		if (markov_prediction4 == Te(allrivalhistory[count - 1]))
 		{
-			markov_accuracy4++;
+			markov_accuracy4 += markov_gradient[4];
 		}
 		for (int i = 0; i < NUMPREDATA; i++)
 		{
 			if (preM_prediction[i] == Te(allrivalhistory[count - 1]))
 			{
-				preM_accuracy[i]++;
+				preM_accuracy[i] += markov_gradient[5];
 			}
 		}
 
@@ -1074,6 +1088,7 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	static Combination_Data cmb;
 	cmb.Set_data(i, myhistory, rivalhistory);
 	cmb.Update();
+	cmb.Set_Mgradient(6, 6, 8, 10, 9, 10);
 	//cmb.debug();
 	cmb.Save_data();
 	if (cmb.FirstBattle())
