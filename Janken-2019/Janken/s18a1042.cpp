@@ -1088,7 +1088,7 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	static Combination_Data cmb;
 	cmb.Set_data(i, myhistory, rivalhistory);
 	cmb.Update();
-	cmb.Set_Mgradient(6, 6, 8, 10, 9, 10);
+	cmb.Set_Mgradient(8, 7, 8, 11, 9, 10);
 	//cmb.debug();
 	cmb.Save_data();
 	if (cmb.FirstBattle())
