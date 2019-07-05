@@ -313,7 +313,7 @@ Te Combination_Data::Next_markov()
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (count >= 1)
+		if (count >= 1 && t >= 1)
 		{
 			if (markov_history[subscript[1]][subscript[0]][i] >= max)
 			{
@@ -359,7 +359,7 @@ Te Combination_Data::Next_mymarkov()
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (count >= 2)
+		if (count >= 1 && t >= 1)
 		{
 			if (markov_myhistory[subscript[1]][subscript[0]][i] >= max)
 			{
@@ -404,7 +404,7 @@ Te Combination_Data::Next_markov2()
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (count >= 2)
+		if (count >= 2 && t >= 2)
 		{
 			if (markov_history2[subscript[3]][subscript[2]][subscript[1]][subscript[0]][i] >= max)
 			{
@@ -450,7 +450,7 @@ Te Combination_Data::Next_markov3()
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (count >= 3)
+		if (count >= 3 && t >= 3)
 		{
 			if (markov_history3[subscript[5]][subscript[4]][subscript[3]][subscript[2]][subscript[1]][subscript[0]][i] >= max)
 			{
@@ -499,7 +499,7 @@ Te Combination_Data::Next_markov3_5()
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (count >= 4)
+		if (count >= 4 && t >= 4)
 		{
 			if (markov_history3_5[subscript[6]][subscript[5]][subscript[4]][subscript[3]][subscript[2]][subscript[1]][subscript[0]][i] >= max)
 			{
@@ -545,7 +545,7 @@ Te Combination_Data::Next_markov4()
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (count >= 4)
+		if (count >= 4 && t >= 4)
 		{
 			if (markov_history4[subscript[7]][subscript[6]][subscript[5]][subscript[4]][subscript[3]][subscript[2]][subscript[1]][subscript[0]][i] >= max)
 			{
@@ -590,7 +590,7 @@ Te Combination_Data::Next_mymarkov2()
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (count >= 2)
+		if (count >= 2 && t >= 2)
 		{
 			if (markov_history2[subscript[3]][subscript[2]][subscript[1]][subscript[0]][i] >= max)
 			{
@@ -636,7 +636,7 @@ Te Combination_Data::Next_premarkov(int p)
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (count >= 4)
+		if (count >= 4 && t >= 4)
 		{
 			if (premarkov[p][subscript[7]][subscript[6]][subscript[5]][subscript[4]][subscript[3]][subscript[2]][subscript[1]][subscript[0]][i] >= max)
 			{
@@ -659,7 +659,7 @@ Te Combination_Data::Next_premarkov(int p)
 // 戻り値 相手の次の手の予測に勝てる手
 Te Combination_Data::Judg_markov()
 {
-	int accuracy[markovnum - 1 + NUMPREDATA] = {
+	int accuracy[(markovnum - 1) + NUMPREDATA] = {
 		markov_accuracy,
 		mymarkov_accuracy,
 		markov_accuracy2,
@@ -667,7 +667,7 @@ Te Combination_Data::Judg_markov()
 		markov_accuracy4,
 		mymarkov_accuracy2
 	};
-	for (int i = markovnum - 1; i < markovnum - 1 + NUMPREDATA; i++)
+	for (int i = markovnum - 1; i < (markovnum - 1) + NUMPREDATA; i++)
 	{
 		accuracy[i] = preM_accuracy[i - (markovnum - 1)];
 	}
@@ -913,6 +913,11 @@ int Combination_Data::Get_count()
 // デバッグ用
 void Combination_Data::debug()
 {
+	if (count == 0)
+	{
+		std::cout << "始め";
+	}
+
 	//if (count == 374)
 	//{
 	//	for (int i = 0; i < 374; i++)
@@ -922,12 +927,12 @@ void Combination_Data::debug()
 	//	std::cout << '\n';
 	//}
 
-	std::cout << count << ':'
+	/*std::cout << count << ':'
 		<< markov_accuracy << ' '
 		<< mymarkov_accuracy << ' '
 		<< markov_accuracy2 << ' '
 		<< markov_accuracy3 << ' '
-		<< markov_accuracy4 << '\n';
+		<< markov_accuracy4 << '\n';*/
 }
 
 int Combination_Data::Add_data()
@@ -1148,7 +1153,7 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	static Combination_Data cmb;
 	cmb.Set_data(i, myhistory, rivalhistory);
 	cmb.Update();
-	cmb.Set_Mgradient(11, 10, 10, 11, 10, 10, 10);
+	cmb.Set_Mgradient(0, 0, 0, 10, 9, 0, 0);
 	//cmb.debug();
 	cmb.Save_data();
 	if (cmb.FirstBattle())
