@@ -24,7 +24,7 @@ extern Te simpleChoki(int i, Te myhistory[], Te rivalhistory[]);
 extern Te simplePa(int i, Te myhistory[], Te rivalhistory[]);
 
 // óë„ÇÃã≠Ç¢êl
-extern Te s18a1053(int i, Te myhistory[], Te rivalhistory[]);
+//extern Te s18a1053(int i, Te myhistory[], Te rivalhistory[]);
 extern Te s09a1007(int i, Te myhistory[], Te rivalhistory[]);
 extern Te s12a2036(int i, Te myhistory[], Te rivalhistory[]);
 extern Te s12a2070(int i, Te myhistory[], Te rivalhistory[]);
@@ -183,7 +183,7 @@ static Te(*player[])(int i, Te myhistory[], Te rivalhistory[]) = {
 	simplePa,
 
 	// óë„ÇÃã≠Ç¢êl
-	s18a1053,
+	//s18a1053,
 	s09a1007,
 	s12a2036,
 	s12a2070,
@@ -343,7 +343,7 @@ static char *playername[] = {
 	"Pa",
 
 	// óë„ÇÃã≠Ç¢êl
-	"s18a1053",
+	//"s18a1053",
 	"s09a1007",
 	"s12a2036",
 	"s12a2070",

@@ -7,9 +7,120 @@
 #include <string>
 #include <random>
 #include <direct.h>
+#include <vector>
 
 extern int MAXKAISU;
 extern int NUMMATCH;
+
+class Markov
+{
+public:
+	Markov();
+	~Markov();
+
+	void Add(int, int, int, int, int, int, int);
+	void Init();
+	inline int******* Get();
+	Te Next(int, int, int, int, int, int, int, int) const;
+	Te Next(Markov*, int, int, int, int, int, int, int, int) const;
+	int markov_data[3][3][3][3][3][3][3];
+
+private:
+};
+
+Markov::Markov()
+{
+	Init();
+}
+
+Markov::~Markov()
+{
+}
+
+void Markov::Add(int prev3, int vict3, int prev2, int vict2, int prev1, int vict1, int stdd)
+{
+	markov_data[prev3][vict3][prev2][vict2][prev1][vict1][stdd]++;
+}
+
+void Markov::Init()
+{
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			for (int k = 0; k < 3; k++)
+			{
+				for (int l = 0; l < 3; l++)
+				{
+					for (int m = 0; m < 3; m++)
+					{
+						for (int n = 0; n < 3; n++)
+						{
+							for (int o = 0; o < 3; o++)
+							{
+								markov_data[i][j][k][l][m][n][o] = 0;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+inline int******* Markov::Get()
+{
+	return (int*******)markov_data;
+}
+
+Te Markov::Next(int count, int t, int prev3, int vict3, int prev2, int vict2, int prev1, int vict1) const
+{
+	int max = -1;
+	Te next;
+
+	for (int i = 0; i < 3; i++)
+	{
+		if (count >= 3 && t >= 3)
+		{
+			if (markov_data[prev3][vict3][prev2][vict2][prev1][vict1][i] >= max)
+			{
+				max = markov_data[prev3][vict3][prev2][vict2][prev1][vict1][i];
+				next = Te(i);
+			}
+		}
+		else
+		{
+			next = Te(rand() % 3);
+		}
+
+	}
+	return next;
+}
+
+Te Markov::Next(Markov* m, int count, int t, int prev3, int vict3, int prev2, int vict2, int prev1, int vict1) const
+{
+	int max = -1;
+	Te next;
+
+	for (int i = 0; i < 3; i++)
+	{
+		if (count >= 3 && t >= 3)
+		{
+			if (this->markov_data[prev3][vict3][prev2][vict2][prev1][vict1][i] +
+				m->markov_data[prev3][vict3][prev2][vict2][prev1][vict1][i] >= max)
+			{
+				max = this->markov_data[prev3][vict3][prev2][vict2][prev1][vict1][i] +
+					m->markov_data[prev3][vict3][prev2][vict2][prev1][vict1][i];
+				next = Te(i);
+			}
+		}
+		else
+		{
+			next = Te(rand() % 3);
+		}
+	}
+	return next;
+}
 
 class Combination_Data
 {
@@ -20,7 +131,7 @@ public:
 	void Update();
 	void Set_data(int, Te*, Te*);
 	void Save_data();
-	void Set_Mgradient(int m1 = 10, int mym = 10, int m2 = 10, int m3 = 10, int m4 = 10, int mym2 = 10, int prem = 10);
+	void Set_Mgradient(int m1 = 10, int mym = 10, int m2 = 10, int m3 = 10, int m4 = 10, int mym2 = 10, int prem = 10, int pastdm = 10);
 
 	Te Next_probability();
 	Te Next_markov();
@@ -88,6 +199,8 @@ private:
 	int markov_history4[3][3][3][3][3][3][3][3][3];
 	int markov_myhistory2[3][3][3][3][3];
 	int premarkov[NUMPREDATA][3][3][3][3][3][3][3][3][3];
+	Markov markov3;
+	std::vector<Markov> markov_Pastdata;
 
 	int savejudg;
 
@@ -103,6 +216,7 @@ private:
 	int markov_accuracy4;
 	int mymarkov_accuracy2;
 	int preM_accuracy[NUMPREDATA];
+	std::vector<int> pastdM_accuracy;
 	Te markov_prediction;
 	Te mymarkov_prediction;
 	Te markov_prediction2;
@@ -110,11 +224,13 @@ private:
 	Te markov_prediction4;
 	Te mymarkov_prediction2;
 	Te preM_prediction[NUMPREDATA];
+	std::vector<Te> pastdM_prediction;
 
-	static const int markovnum = 7;
+	static const int markovnum = 8;
 	int markov_gradient[markovnum];
 
 	int count;
+	int allcount;
 
 	int savecount;
 	std::ofstream logf;
@@ -134,10 +250,14 @@ private:
 Combination_Data::Combination_Data() : rand3(0, 2), MAXKAISU_intern(MAXKAISU), NUMMATCH_intern(NUMMATCH), markov_prediction(Te(0)), mymarkov_prediction(Te(0))
 {
 	count = -1;
+	allcount = -1;
 	savecount = 0;
 
 	allmyhistory = new int[MAXKAISU_intern * NUMMATCH_intern];
 	allrivalhistory = new int[MAXKAISU_intern * NUMMATCH_intern];
+	markov_Pastdata.reserve(300);
+	pastdM_accuracy.reserve(300);
+	pastdM_prediction.reserve(300);
 
 	filename = "log\\log.csv";
 	filename2 = "log\\log2.csv";
@@ -189,7 +309,7 @@ void Combination_Data::Update()
 }
 
 // データをクラスに与える
-void Combination_Data::Set_data(int u, Te* my, Te* rival)
+void Combination_Data::Set_data(int u, Te * my, Te * rival)
 {
 	t = u;
 	myhistory = my;
@@ -268,7 +388,7 @@ void Combination_Data::Save_data()
 
 }
 
-void Combination_Data::Set_Mgradient(int m1, int mym, int m2, int m3, int m4, int mym2, int prem)
+void Combination_Data::Set_Mgradient(int m1, int mym, int m2, int m3, int m4, int mym2, int prem, int pastdm)
 {
 	markov_gradient[0] = m1;
 	markov_gradient[1] = mym;
@@ -277,6 +397,7 @@ void Combination_Data::Set_Mgradient(int m1, int mym, int m2, int m3, int m4, in
 	markov_gradient[4] = m4;
 	markov_gradient[5] = mym2;
 	markov_gradient[6] = prem;
+	markov_gradient[7] = pastdm;
 }
 
 // 簡単な予測アルゴリズム 戻り値 相手の次の手の予測
@@ -659,7 +780,7 @@ Te Combination_Data::Next_premarkov(int p)
 // 戻り値 相手の次の手の予測に勝てる手
 Te Combination_Data::Judg_markov()
 {
-	int accuracy[(markovnum - 1) + NUMPREDATA] = {
+	std::vector<int> accuracy = {
 		markov_accuracy,
 		mymarkov_accuracy,
 		markov_accuracy2,
@@ -667,9 +788,22 @@ Te Combination_Data::Judg_markov()
 		markov_accuracy4,
 		mymarkov_accuracy2
 	};
-	for (int i = markovnum - 1; i < (markovnum - 1) + NUMPREDATA; i++)
+	accuracy.resize((markovnum - 2) + NUMPREDATA + pastdM_accuracy.size());
+	/*int accuracy[(markovnum - 1) + NUMPREDATA] = {
+		markov_accuracy,
+		mymarkov_accuracy,
+		markov_accuracy2,
+		markov_accuracy3,
+		markov_accuracy4,
+		mymarkov_accuracy2
+	};*/
+	for (int i = markovnum - 2; i < (markovnum - 2) + NUMPREDATA; i++)
 	{
-		accuracy[i] = preM_accuracy[i - (markovnum - 1)];
+		accuracy[i] = preM_accuracy[i - (markovnum - 2)];
+	}
+	for (int i = (markovnum - 2) + NUMPREDATA; i < (markovnum - 2) + NUMPREDATA + pastdM_accuracy.size(); i++)
+	{
+		accuracy[i] = pastdM_prediction[i - ((markovnum - 2) + NUMPREDATA)];
 	}
 	Te(Combination_Data:: * markov_func[])() = {
 		&Combination_Data::Next_markov,
@@ -682,7 +816,7 @@ Te Combination_Data::Judg_markov()
 	Te(Combination_Data:: * premarkov_func)(int p) = &Combination_Data::Next_premarkov;
 	int max[] = { -1,0 };
 
-	for (int i = 0; i < sizeof(accuracy) / sizeof(accuracy[0]); i++)
+	for (int i = 0; i < accuracy.size(); i++)
 	{
 		if (accuracy[i] >= max[0])
 		{
@@ -707,9 +841,31 @@ Te Combination_Data::Judg_markov()
 	{
 		return Win((this->*markov_func[max[1]])());
 	}
+	else if (max[1] < (markovnum - 2) + NUMPREDATA)
+	{
+		return Win((this->*premarkov_func)(max[1] - (markovnum - 2)));
+	}
 	else
 	{
-		return Win((this->*premarkov_func)(max[1] - (markovnum - 1)));
+		if (count >= 3)
+		{
+			int subscript[6];
+			for (int i = count - 1, j = 0; i >= 0 && j < 6; i--)
+			{
+				if (allrivalhistory[i] != -1 && allmyhistory[i] != -1)
+				{
+					subscript[j] = WinorLose(Te(allmyhistory[i]), Te(allrivalhistory[i]));
+					subscript[j + 1] = allrivalhistory[i];
+					j += 2;
+				}
+			}
+			std::cout << count << ' ' << allcount << ' ' << max[1] - ((markovnum - 2) + NUMPREDATA) << '\n';
+			return Win(markov_Pastdata[max[1] - ((markovnum - 2) + NUMPREDATA)].Next(&markov3, count, t, subscript[5], subscript[4], subscript[3], subscript[2], subscript[1], subscript[0]));
+		}
+		else
+		{
+			return rnd();
+		}
 	}
 }
 
@@ -913,10 +1069,6 @@ int Combination_Data::Get_count()
 // デバッグ用
 void Combination_Data::debug()
 {
-	if (count == 0)
-	{
-		std::cout << "始め";
-	}
 
 	//if (count == 374)
 	//{
@@ -958,6 +1110,7 @@ int Combination_Data::Add_data()
 	if (t >= 4)
 	{
 		markov_history3[rivalhistory[t - 4]][WinorLose(myhistory[t - 4], rivalhistory[t - 4])][rivalhistory[t - 3]][WinorLose(myhistory[t - 3], rivalhistory[t - 3])][rivalhistory[t - 2]][WinorLose(myhistory[t - 2], rivalhistory[t - 2])][rivalhistory[t - 1]]++;
+		markov3.Add(rivalhistory[t - 4], WinorLose(myhistory[t - 4], rivalhistory[t - 4]), rivalhistory[t - 3], WinorLose(myhistory[t - 3], rivalhistory[t - 3]), rivalhistory[t - 2], WinorLose(myhistory[t - 2], rivalhistory[t - 2]), rivalhistory[t - 1]);
 	}
 	if (t >= 5)
 	{
@@ -1011,6 +1164,13 @@ void Combination_Data::Init_data()
 				}
 			}
 		}
+		if (allcount != -1 || true)
+		{
+			markov_Pastdata.push_back(markov3);
+			pastdM_accuracy.push_back(0);
+			pastdM_prediction.push_back(Gu);
+			markov3.Init();
+		}
 		for (int i = 0; i < MAXKAISU_intern * NUMMATCH_intern; i++)
 		{
 			allmyhistory[i] = -1;
@@ -1024,11 +1184,17 @@ void Combination_Data::Init_data()
 		markov_accuracy2 = 0;
 		markov_accuracy3 = 0;
 		markov_accuracy4 = 0;
+		mymarkov_accuracy2 = 0;
 		for (int i = 0; i < NUMPREDATA; i++)
 		{
 			preM_accuracy[i] = 0;
 		}
+		for (int i = 0; i < pastdM_accuracy.size(); i++)
+		{
+			pastdM_accuracy[i] = 0;
+		}
 		IsWin4PreFlag = false;
+		allcount++;
 	}
 }
 
@@ -1058,7 +1224,7 @@ int Combination_Data::Losing_counter()
 
 int Combination_Data::markov_counter()
 {
-	if (count >= 4)
+	if (count >= 3)
 	{
 		if (markov_prediction == Te(allrivalhistory[count - 1]))
 		{
@@ -1091,6 +1257,13 @@ int Combination_Data::markov_counter()
 				preM_accuracy[i] += markov_gradient[6];
 			}
 		}
+		for (int i = 0; i < markov_Pastdata.size(); i++)
+		{
+			if (pastdM_prediction[i] == Te(allrivalhistory[count - 1]))
+			{
+				pastdM_accuracy[i] += markov_gradient[7];
+			}
+		}
 
 
 		markov_prediction = Next_markov();
@@ -1102,6 +1275,21 @@ int Combination_Data::markov_counter()
 		for (int i = 0; i < NUMPREDATA; i++)
 		{
 			preM_prediction[i] = Next_premarkov(i);
+		}
+
+		int subscript[6];
+		for (int i = count - 1, j = 0; i >= 0 && j < 6; i--)
+		{
+			if (allrivalhistory[i] != -1 && allmyhistory[i] != -1)
+			{
+				subscript[j] = WinorLose(Te(allmyhistory[i]), Te(allrivalhistory[i]));
+				subscript[j + 1] = allrivalhistory[i];
+				j += 2;
+			}
+		}
+		for (int i = 0; i < pastdM_prediction.size(); i++)
+		{
+			pastdM_prediction[i] = markov_Pastdata[i].Next(&markov3, count, t, subscript[5], subscript[4], subscript[3], subscript[2], subscript[1], subscript[0]);
 		}
 	}
 
@@ -1153,8 +1341,8 @@ Te s18a1042(int i, Te myhistory[], Te rivalhistory[]) {
 	static Combination_Data cmb;
 	cmb.Set_data(i, myhistory, rivalhistory);
 	cmb.Update();
-	cmb.Set_Mgradient(0, 0, 0, 10, 9, 0, 0);
-	//cmb.debug();
+	cmb.Set_Mgradient(0, 0, 0, 0, 0, 0, 0, 10);
+	cmb.debug();
 	cmb.Save_data();
 	if (cmb.FirstBattle())
 	{
