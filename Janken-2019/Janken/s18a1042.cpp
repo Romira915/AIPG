@@ -43,7 +43,7 @@ void Markov::Add(int prev3, int vict3, int prev2, int vict2, int prev1, int vict
 
 void Markov::Init()
 {
-	for (int i = 0; i < 3; i++) 
+	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
@@ -141,23 +141,23 @@ public:
 
 	Te markovclass();
 
-	double WinRate(int);
-	double LossRate(int);
+	inline double WinRate(int) const;
+	inline double LossRate(int) const;
 
-	bool FirstBattle();
-	bool IsOnlyCpu();
+	bool FirstBattle() const;
+	bool IsOnlyCpu() const;
 	bool IsWin4Pre();
 
-	Te MyLatestHand();
-	Te RivalLatestHand();
-	Te Win(Te);
-	Te Lose(Te);
-	int Get_win();
-	int Get_lose();
+	Te MyLatestHand() const;
+	Te RivalLatestHand() const;
+	Te Win(Te) const;
+	Te Lose(Te) const;
+	int Get_win() const;
+	int Get_lose() const;
 	// 引き分け:0 負け:1 勝ち:2
-	int WinorLose(Te, Te);
-	Te rnd();
-	int Get_count();
+	int WinorLose(Te, Te) const;
+	const Te rnd();
+	int Get_count() const;
 
 	void debug();
 
@@ -305,7 +305,7 @@ void Combination_Data::Update()
 }
 
 // データをクラスに与える
-void Combination_Data::Set_data(int u, Te * my, Te * rival)
+void Combination_Data::Set_data(int u, Te* my, Te* rival)
 {
 	t = u;
 	myhistory = my;
@@ -857,7 +857,7 @@ Te Combination_Data::markovclass()
 }
 
 // 戻り値 現在の勝率 引数：計測開始ターン
-double Combination_Data::WinRate(int start)
+inline double Combination_Data::WinRate(int start) const
 {
 	if (count >= start)
 	{
@@ -867,7 +867,7 @@ double Combination_Data::WinRate(int start)
 }
 
 // 戻り値 現在の敗率 引数：計測開始ターン
-double Combination_Data::LossRate(int start)
+inline double Combination_Data::LossRate(int start) const
 {
 	if (count >= start)
 	{
@@ -877,13 +877,13 @@ double Combination_Data::LossRate(int start)
 }
 
 // 戻り値 0戦目0回目ならtrue
-bool Combination_Data::FirstBattle()
+bool Combination_Data::FirstBattle() const
 {
 	return count == 0;
 }
 
 // 戻り値 OnlyCpuと判定した場合true
-bool Combination_Data::IsOnlyCpu()
+bool Combination_Data::IsOnlyCpu() const
 {
 	if (count >= 2)
 	{
@@ -920,7 +920,7 @@ bool Combination_Data::IsWin4Pre()
 }
 
 // 戻り値 自分が最後に出した手
-Te Combination_Data::MyLatestHand()
+Te Combination_Data::MyLatestHand() const
 {
 	for (int i = count - 1; i >= 0; i--)
 	{
@@ -931,7 +931,7 @@ Te Combination_Data::MyLatestHand()
 }
 
 // 戻り値 相手が最後に出した手
-Te Combination_Data::RivalLatestHand()
+Te Combination_Data::RivalLatestHand() const
 {
 	for (int i = count - 1; i >= 0; i--)
 	{
@@ -942,40 +942,40 @@ Te Combination_Data::RivalLatestHand()
 }
 
 // 戻り値 引数に勝てる手
-Te Combination_Data::Win(Te te)
+Te Combination_Data::Win(Te te) const
 {
 	return Te((te + 2) % 3);
 }
 
 // 戻り値 引数に負ける手
-Te Combination_Data::Lose(Te te)
+Te Combination_Data::Lose(Te te) const
 {
 	return Te((te + 1) % 3);
 }
 
-int Combination_Data::Get_win()
+int Combination_Data::Get_win() const
 {
 	return won_count;
 }
 
-int Combination_Data::Get_lose()
+int Combination_Data::Get_lose() const
 {
 	return losed_count;
 }
 
 // 戻り値 引き分け:0 負け:1 勝ち:2
-int Combination_Data::WinorLose(Te my, Te rival)
+int Combination_Data::WinorLose(Te my, Te rival) const
 {
 	return (my - rival + 3) % 3;
 }
 
 // 戻り値 ランダムな手
-Te Combination_Data::rnd()
+const Te Combination_Data::rnd()
 {
 	return Te(rand3(r));
 }
 
-int Combination_Data::Get_count()
+int Combination_Data::Get_count() const
 {
 	return count;
 }
